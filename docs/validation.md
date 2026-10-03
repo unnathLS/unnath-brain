@@ -21,4 +21,5 @@ Data: 2026-10-03.
 - Validação da raiz canônica: 36 testes aprovados; raiz ausente ou apontando para arquivo encerra a validação com código 1, sem criar índice vazio aparentemente saudável.
 - Distribuição após revisão final: clone limpo de `origin/development` construiu a imagem, compilou o pacote, passou em `pip check` e aprovou os 36 testes; diretório temporário removido após a validação.
 - Runtime mínimo: alvo Docker `runtime` validado sem `pytest`, `httpx` ou pacote `tests`; alvo `test` aprovou 36 testes, compilação e `pip check`; configuração Compose aprovada usando explicitamente o runtime.
+- Dependências reproduzíveis: build sem cache aprovado com backend e transitivas fixados em `constraints.txt`; teste de cobertura das distribuições instaladas, 37 testes, compilação e `pip check` aprovados; runtime permaneceu mínimo.
 - Containers temporários do teste foram removidos; containers externos permaneceram intactos.

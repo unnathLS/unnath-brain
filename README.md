@@ -36,4 +36,6 @@ docker build --target test -t unnath-brain:test .
 docker run --rm unnath-brain:test pytest
 ```
 
+As versões transitivas validadas ficam em `constraints.txt`; atualize esse arquivo junto com qualquer mudança intencional de dependências.
+
 Consulte `docs/api.md` para o contrato resumido e `PROGRESS.md` para o estado.

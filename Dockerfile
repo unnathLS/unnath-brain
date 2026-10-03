@@ -5,12 +5,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-COPY pyproject.toml README.md ./
+COPY pyproject.toml constraints.txt README.md ./
 COPY brain_gateway ./brain_gateway
 
 FROM base AS runtime
 
-RUN pip install --no-cache-dir .
+RUN pip install --no-cache-dir --constraint constraints.txt .
 COPY brain ./brain
 RUN mkdir -p /app/data
 
@@ -23,5 +23,5 @@ CMD ["uvicorn", "brain_gateway.main:app", "--host", "0.0.0.0", "--port", "8080"]
 
 FROM runtime AS test
 
-RUN pip install --no-cache-dir ".[dev]"
+RUN pip install --no-cache-dir --constraint constraints.txt ".[dev]"
 COPY tests ./tests
