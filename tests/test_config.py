@@ -26,6 +26,10 @@ def test_settings_accept_strong_unique_tokens(monkeypatch) -> None:
         {},
         {"": "a" * MIN_API_TOKEN_LENGTH},
         {" unnatha": "a" * MIN_API_TOKEN_LENGTH},
+        {"unnatha admin": "a" * MIN_API_TOKEN_LENGTH},
+        {"unnatha\nadmin": "a" * MIN_API_TOKEN_LENGTH},
+        {"unnatha/../../admin": "a" * MIN_API_TOKEN_LENGTH},
+        {"a" * 65: "a" * MIN_API_TOKEN_LENGTH},
         {"unnatha": "short"},
         {"unnatha": " " + "a" * MIN_API_TOKEN_LENGTH},
         {

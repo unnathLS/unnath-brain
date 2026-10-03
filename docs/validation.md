@@ -23,4 +23,5 @@ Data: 2026-10-03.
 - Runtime mínimo: alvo Docker `runtime` validado sem `pytest`, `httpx` ou pacote `tests`; alvo `test` aprovou 36 testes, compilação e `pip check`; configuração Compose aprovada usando explicitamente o runtime.
 - Dependências reproduzíveis: build sem cache aprovado com backend e transitivas fixados em `constraints.txt`; teste de cobertura das distribuições instaladas, 37 testes, compilação e `pip check` aprovados; runtime permaneceu mínimo.
 - Imagem base reproduzível: índice multi-arquitetura de `python:3.12-slim` fixado por digest após confirmação no registry; build sem cache, verificação automática do Dockerfile, 38 testes, compilação e `pip check` aprovados.
+- Identidades auditáveis: atores aceitam somente 1 a 64 caracteres alfanuméricos, ponto, sublinhado ou hífen; espaços internos, quebras de linha, caminhos e nomes longos são rejeitados; 42 testes, compilação e `pip check` aprovados.
 - Containers temporários do teste foram removidos; containers externos permaneceram intactos.
