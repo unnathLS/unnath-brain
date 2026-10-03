@@ -48,7 +48,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         limit: Annotated[int, Query(ge=1, le=50)] = 10,
         actor: str = Depends(actor_from_token),
     ) -> dict[str, object]:
-        return {"actor": actor, "results": search_documents(resolved.db_path, q, limit)}
+        try:
+            results = search_documents(resolved.db_path, q, limit)
+        except ValueError as exc:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+        return {"actor": actor, "results": results}
 
     @app.get("/api/v1/documents/{document_id}")
     def document(document_id: str, _: str = Depends(actor_from_token)) -> dict[str, object]:
@@ -59,10 +63,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.post("/api/v1/context")
     def context_pack(request: ContextRequest, actor: str = Depends(actor_from_token)) -> dict[str, object]:
-        combined_query = " ".join(
-            value for value in (request.project, request.mission, request.query) if value
-        )
-        results = search_documents(resolved.db_path, combined_query, request.limit)
+        try:
+            results = search_documents(resolved.db_path, request.query, request.limit)
+        except ValueError as exc:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
         groups: dict[str, list[dict[str, object]]] = {
             "decisions": [],
             "procedures": [],
@@ -84,6 +88,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return {
             "agent": actor,
             "project": request.project,
+            "mission": request.mission,
+            "query": request.query,
             **groups,
             "sources": sources,
         }

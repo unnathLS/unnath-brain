@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from hashlib import sha256
 from pathlib import Path
 import re
@@ -90,6 +90,27 @@ def parse_document(path: Path, root: Path) -> Document:
         raise DocumentError(f"{path}: type inválido: {document_type}")
     if status not in ALLOWED_STATUSES:
         raise DocumentError(f"{path}: status inválido: {status}")
+    if document_type == "proposal":
+        missing_proposal = sorted(
+            field for field in ("author", "timestamp") if not metadata.get(field)
+        )
+        if missing_proposal:
+            raise DocumentError(
+                f"{path}: proposta sem campos obrigatórios: {', '.join(missing_proposal)}"
+            )
+        if status != "pending":
+            raise DocumentError(f"{path}: proposta deve permanecer pending")
+        try:
+            timestamp = datetime.fromisoformat(str(metadata["timestamp"]))
+        except ValueError as exc:
+            raise DocumentError(f"{path}: timestamp inválido") from exc
+        if timestamp.tzinfo is None:
+            raise DocumentError(f"{path}: timestamp deve incluir fuso horário")
+        if target_id := metadata.get("target_id"):
+            if not ID_PATTERN.fullmatch(target_id):
+                raise DocumentError(f"{path}: target_id inválido")
+    elif status == "pending":
+        raise DocumentError(f"{path}: status pending é exclusivo de propostas")
     try:
         date.fromisoformat(created)
     except ValueError as exc:
@@ -131,4 +152,3 @@ def load_documents(root: Path) -> list[Document]:
         seen[document.id] = document.path
         documents.append(document)
     return documents
-

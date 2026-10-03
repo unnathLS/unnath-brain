@@ -44,6 +44,7 @@ def test_health_and_invalid_auth(tmp_path: Path) -> None:
         assert client.get("/health").json() == {"status": "ok"}
         assert client.get("/api/v1/search", params={"q": "Presidente"}).status_code == 401
         assert client.get("/api/v1/search", params={"q": "Presidente"}, headers=auth("wrong")).status_code == 401
+        assert client.get("/api/v1/search", params={"q": '"***"'}, headers=auth("token-a")).status_code == 422
 
 
 def test_two_consumers_find_same_document(tmp_path: Path) -> None:
@@ -66,11 +67,17 @@ def test_document_and_context(tmp_path: Path) -> None:
         assert document.json()["content_hash"]
         context = client.post(
             "/api/v1/context",
-            json={"project": None, "mission": None, "query": "autorização Presidente", "limit": 5},
+            json={
+                "project": "unnath-hq",
+                "mission": "registrar execução futura",
+                "query": "autorização Presidente",
+                "limit": 5,
+            },
             headers=auth("token-a"),
         )
         assert context.status_code == 200
         assert context.json()["agent"] == "unnatha"
+        assert context.json()["project"] == "unnath-hq"
         assert context.json()["decisions"][0]["id"] == "DEC-TEST-001"
         assert context.json()["sources"][0]["path"] == "decisions/decision.md"
 
@@ -99,4 +106,3 @@ def test_proposal_is_pending_and_preserves_decision(tmp_path: Path) -> None:
         assert 'author: "niyam"' in proposal
         assert "Proposta de texto" in proposal
         assert original_path.read_text(encoding="utf-8") == original
-

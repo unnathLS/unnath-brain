@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 import sqlite3
 import subprocess
 
@@ -38,10 +39,18 @@ def connect(db_path: Path) -> sqlite3.Connection:
     return connection
 
 
-def current_git_ref(repository_root: Path) -> str | None:
+def _git_context(start: Path) -> tuple[Path, str] | None:
     try:
-        result = subprocess.run(
-            ["git", "-C", str(repository_root), "rev-parse", "HEAD"],
+        root_result = subprocess.run(
+            ["git", "-C", str(start), "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            timeout=2,
+            check=True,
+        )
+        root = Path(root_result.stdout.strip())
+        head_result = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "HEAD"],
             capture_output=True,
             text=True,
             timeout=2,
@@ -49,12 +58,39 @@ def current_git_ref(repository_root: Path) -> str | None:
         )
     except (FileNotFoundError, subprocess.SubprocessError):
         return None
-    return result.stdout.strip() or None
+    head = head_result.stdout.strip()
+    return (root, head) if head else None
+
+
+def _document_git_ref(
+    context: tuple[Path, str] | None, brain_root: Path, document_path: Path
+) -> str | None:
+    if not context:
+        return None
+    repository_root, head = context
+    absolute_path = brain_root / document_path
+    try:
+        relative_path = absolute_path.resolve().relative_to(repository_root.resolve()).as_posix()
+        subprocess.run(
+            ["git", "-C", str(repository_root), "ls-files", "--error-unmatch", "--", relative_path],
+            capture_output=True,
+            timeout=2,
+            check=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(repository_root), "diff", "--quiet", "HEAD", "--", relative_path],
+            capture_output=True,
+            timeout=2,
+            check=True,
+        )
+    except (ValueError, FileNotFoundError, subprocess.SubprocessError):
+        return None
+    return head
 
 
 def rebuild_index(brain_root: Path, db_path: Path) -> int:
     documents = load_documents(brain_root)
-    git_ref = current_git_ref(brain_root.parent)
+    git_context = _git_context(brain_root)
     with connect(db_path) as connection:
         connection.execute("DELETE FROM documents_fts")
         connection.execute("DELETE FROM documents")
@@ -74,7 +110,7 @@ def rebuild_index(brain_root: Path, db_path: Path) -> int:
                     document.content,
                     document.path.as_posix(),
                     document.content_hash,
-                    git_ref,
+                    _document_git_ref(git_context, brain_root, document.path),
                 ),
             )
             connection.execute(
@@ -97,7 +133,7 @@ def get_document(db_path: Path, document_id: str) -> dict[str, str | None] | Non
 
 
 def _fts_query(query: str) -> str:
-    terms = [part.replace('"', '""') for part in query.split() if part.strip()]
+    terms = re.findall(r"\w+", query, flags=re.UNICODE)
     if not terms:
         raise ValueError("consulta vazia")
     return " AND ".join(f'"{term}"*' for term in terms)

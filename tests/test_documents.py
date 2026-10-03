@@ -56,3 +56,34 @@ def test_duplicate_id(tmp_path: Path) -> None:
     with pytest.raises(DocumentError, match="ID duplicado"):
         load_documents(tmp_path)
 
+
+def test_pending_is_exclusive_to_proposals(tmp_path: Path) -> None:
+    path = tmp_path / "decision.md"
+    path.write_text(VALID.replace("status: active", "status: pending"), encoding="utf-8")
+    with pytest.raises(DocumentError, match="exclusivo de propostas"):
+        parse_document(path, tmp_path)
+
+
+def test_proposal_requires_governance_metadata(tmp_path: Path) -> None:
+    proposal = VALID.replace("id: DEC-TEST-001", "id: PROP-TEST-001").replace(
+        "type: decision", "type: proposal"
+    )
+    path = tmp_path / "proposal.md"
+    path.write_text(proposal, encoding="utf-8")
+    with pytest.raises(DocumentError, match="proposta sem campos"):
+        parse_document(path, tmp_path)
+
+
+def test_proposal_cannot_be_active(tmp_path: Path) -> None:
+    proposal = (
+        VALID.replace("id: DEC-TEST-001", "id: PROP-TEST-001")
+        .replace("type: decision", "type: proposal")
+        .replace(
+            "supersedes:\n",
+            "supersedes:\nauthor: niyam\ntimestamp: 2026-10-03T12:00:00+00:00\n",
+        )
+    )
+    path = tmp_path / "proposal.md"
+    path.write_text(proposal, encoding="utf-8")
+    with pytest.raises(DocumentError, match="deve permanecer pending"):
+        parse_document(path, tmp_path)
