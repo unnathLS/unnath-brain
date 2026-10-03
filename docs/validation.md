@@ -16,4 +16,5 @@ Data: 2026-10-03.
 - Validação de distribuição: um clone limpo de `origin/development` gerou a imagem Docker, compilou o pacote, passou em `pip check` e aprovou os 18 testes.
 - Prontidão operacional: 21 testes aprovados; `brain_gateway.cli validate` confirmou os Markdown sem alterar o índice; `/health` confirmou o índice com `documents: 1`.
 - Ciclo autônomo de prontidão: 25 testes aprovados; propostas inválidas são rejeitadas antes da escrita, falhas do SQLite retornam HTTP 503 de forma consistente e o healthcheck detecta divergência entre documentos e FTS.
+- Revisão final de autenticação: 33 testes aprovados; configuração rejeita identidades vazias, tokens duplicados, espaços periféricos e tokens com menos de 32 caracteres; compilação e `pip check` aprovados.
 - Containers temporários do teste foram removidos; containers externos permaneceram intactos.

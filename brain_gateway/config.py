@@ -6,6 +6,9 @@ import os
 from pathlib import Path
 
 
+MIN_API_TOKEN_LENGTH = 32
+
+
 @dataclass(frozen=True)
 class Settings:
     brain_root: Path
@@ -24,13 +27,23 @@ class Settings:
         if (
             not isinstance(tokens, dict)
             or not tokens
-            or any(not isinstance(key, str) or not isinstance(value, str) or not value for key, value in tokens.items())
+            or any(
+                not isinstance(key, str)
+                or not key.strip()
+                or key != key.strip()
+                or not isinstance(value, str)
+                or len(value) < MIN_API_TOKEN_LENGTH
+                or value != value.strip()
+                for key, value in tokens.items()
+            )
             or len(set(tokens.values())) != len(tokens)
         ):
-            raise RuntimeError("BRAIN_API_TOKENS deve mapear identidades para tokens únicos")
+            raise RuntimeError(
+                "BRAIN_API_TOKENS deve mapear identidades não vazias para tokens "
+                f"únicos com pelo menos {MIN_API_TOKEN_LENGTH} caracteres"
+            )
         return cls(
             brain_root=Path(os.getenv("BRAIN_ROOT", "brain")),
             db_path=Path(os.getenv("BRAIN_DB_PATH", "data/brain.db")),
             api_tokens=tokens,
         )
-
