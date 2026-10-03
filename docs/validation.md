@@ -17,4 +17,5 @@ Data: 2026-10-03.
 - Prontidão operacional: 21 testes aprovados; `brain_gateway.cli validate` confirmou os Markdown sem alterar o índice; `/health` confirmou o índice com `documents: 1`.
 - Ciclo autônomo de prontidão: 25 testes aprovados; propostas inválidas são rejeitadas antes da escrita, falhas do SQLite retornam HTTP 503 de forma consistente e o healthcheck detecta divergência entre documentos e FTS.
 - Revisão final de autenticação: 33 testes aprovados; configuração rejeita identidades vazias, tokens duplicados, espaços periféricos e tokens com menos de 32 caracteres; compilação e `pip check` aprovados.
+- Persistência de propostas: 35 testes aprovados; escrita temporária, `fsync` e publicação atômica impedem que rebuilds observem Markdown parcial e removem temporários após falhas.
 - Containers temporários do teste foram removidos; containers externos permaneceram intactos.

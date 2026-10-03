@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import os
 from pathlib import Path
 import re
 from uuid import uuid4
@@ -25,6 +26,7 @@ def create_proposal(
     proposal_id = f"PROP-{now:%Y%m%d%H%M%S}-{uuid4().hex[:8].upper()}"
     relative_path = Path("proposals") / f"{proposal_id.lower()}.md"
     path = brain_root / relative_path
+    temporary_path = path.with_suffix(path.suffix + ".tmp")
     path.parent.mkdir(parents=True, exist_ok=True)
     metadata = [
         "---",
@@ -43,7 +45,13 @@ def create_proposal(
         metadata
         + ["---", "", f"# {_safe_title(title)}", "", content.strip(), ""]
     )
-    with path.open("x", encoding="utf-8", newline="\n") as stream:
-        stream.write(document)
+    try:
+        with temporary_path.open("x", encoding="utf-8", newline="\n") as stream:
+            stream.write(document)
+            stream.flush()
+            os.fsync(stream.fileno())
+        temporary_path.replace(path)
+    except BaseException:
+        temporary_path.unlink(missing_ok=True)
+        raise
     return proposal_id, relative_path, now.isoformat()
-
