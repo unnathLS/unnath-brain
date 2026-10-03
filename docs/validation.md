@@ -24,4 +24,5 @@ Data: 2026-10-03.
 - Dependências reproduzíveis: build sem cache aprovado com backend e transitivas fixados em `constraints.txt`; teste de cobertura das distribuições instaladas, 37 testes, compilação e `pip check` aprovados; runtime permaneceu mínimo.
 - Imagem base reproduzível: índice multi-arquitetura de `python:3.12-slim` fixado por digest após confirmação no registry; build sem cache, verificação automática do Dockerfile, 38 testes, compilação e `pip check` aprovados.
 - Identidades auditáveis: atores aceitam somente 1 a 64 caracteres alfanuméricos, ponto, sublinhado ou hífen; espaços internos, quebras de linha, caminhos e nomes longos são rejeitados; 42 testes, compilação e `pip check` aprovados.
+- Árvore canônica: decisões, procedimentos, conhecimento, projetos, companhia, agentes e propostas devem residir em seus diretórios correspondentes; `archive` e `inbox` preservam o fluxo de documentos não propositivos; 45 testes aprovados.
 - Containers temporários do teste foram removidos; containers externos permaneceram intactos.

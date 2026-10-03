@@ -51,8 +51,10 @@ def test_invalid_document(tmp_path: Path, invalid: str) -> None:
 
 
 def test_duplicate_id(tmp_path: Path) -> None:
-    (tmp_path / "one.md").write_text(VALID, encoding="utf-8")
-    (tmp_path / "two.md").write_text(VALID, encoding="utf-8")
+    decisions = tmp_path / "decisions"
+    decisions.mkdir()
+    (decisions / "one.md").write_text(VALID, encoding="utf-8")
+    (decisions / "two.md").write_text(VALID, encoding="utf-8")
     with pytest.raises(DocumentError, match="ID duplicado"):
         load_documents(tmp_path)
 
@@ -98,3 +100,40 @@ def test_proposal_cannot_be_active(tmp_path: Path) -> None:
     path.write_text(proposal, encoding="utf-8")
     with pytest.raises(DocumentError, match="deve permanecer pending"):
         parse_document(path, tmp_path)
+
+
+def test_document_type_must_match_canonical_directory(tmp_path: Path) -> None:
+    knowledge = tmp_path / "knowledge"
+    knowledge.mkdir()
+    (knowledge / "decision.md").write_text(VALID, encoding="utf-8")
+
+    with pytest.raises(DocumentError, match="type decision deve estar em decisions/"):
+        load_documents(tmp_path)
+
+
+def test_workflow_directories_accept_non_proposal_documents(tmp_path: Path) -> None:
+    archive = tmp_path / "archive"
+    archive.mkdir()
+    (archive / "decision.md").write_text(
+        VALID.replace("status: active", "status: archived"), encoding="utf-8"
+    )
+
+    assert load_documents(tmp_path)[0].path == Path("archive/decision.md")
+
+
+def test_proposal_must_remain_in_proposals_directory(tmp_path: Path) -> None:
+    inbox = tmp_path / "inbox"
+    inbox.mkdir()
+    proposal = (
+        VALID.replace("id: DEC-TEST-001", "id: PROP-TEST-001")
+        .replace("type: decision", "type: proposal")
+        .replace("status: active", "status: pending")
+        .replace(
+            "supersedes:\n",
+            "supersedes:\nauthor: niyam\ntimestamp: 2026-10-03T12:00:00+00:00\n",
+        )
+    )
+    (inbox / "proposal.md").write_text(proposal, encoding="utf-8")
+
+    with pytest.raises(DocumentError, match="type proposal deve estar em proposals/"):
+        load_documents(tmp_path)

@@ -23,8 +23,8 @@ def test_validate_command_does_not_require_api_tokens(
     tmp_path: Path, monkeypatch, capsys
 ) -> None:
     brain = tmp_path / "brain"
-    brain.mkdir()
-    (brain / "document.md").write_text(VALID, encoding="utf-8")
+    (brain / "knowledge").mkdir(parents=True)
+    (brain / "knowledge" / "document.md").write_text(VALID, encoding="utf-8")
     monkeypatch.setenv("BRAIN_ROOT", str(brain))
     monkeypatch.delenv("BRAIN_API_TOKENS", raising=False)
     monkeypatch.setattr(sys, "argv", ["brain", "validate"])

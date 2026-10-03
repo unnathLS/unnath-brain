@@ -19,6 +19,16 @@ ALLOWED_TYPES = {
 ALLOWED_STATUSES = {"draft", "active", "superseded", "archived", "pending"}
 REQUIRED_FIELDS = {"id", "type", "status", "scope", "created"}
 ID_PATTERN = re.compile(r"^[A-Z][A-Z0-9-]{2,79}$")
+TYPE_DIRECTORIES = {
+    "decision": "decisions",
+    "procedure": "procedures",
+    "knowledge": "knowledge",
+    "project": "projects",
+    "company": "company",
+    "agent": "agents",
+    "proposal": "proposals",
+}
+WORKFLOW_DIRECTORIES = {"archive", "inbox"}
 
 
 class DocumentError(ValueError):
@@ -147,6 +157,15 @@ def load_documents(root: Path) -> list[Document]:
     seen: dict[str, Path] = {}
     for path in sorted(root.rglob("*.md")):
         document = parse_document(path, root)
+        top_level = document.path.parts[0]
+        expected = TYPE_DIRECTORIES[document.type]
+        if top_level != expected and not (
+            top_level in WORKFLOW_DIRECTORIES and document.type != "proposal"
+        ):
+            raise DocumentError(
+                f"{document.path.as_posix()}: type {document.type} deve estar em "
+                f"{expected}/"
+            )
         if previous := seen.get(document.id):
             raise DocumentError(
                 f"ID duplicado {document.id}: {previous.as_posix()} e {document.path.as_posix()}"
