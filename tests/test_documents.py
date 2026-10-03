@@ -137,3 +137,59 @@ def test_proposal_must_remain_in_proposals_directory(tmp_path: Path) -> None:
 
     with pytest.raises(DocumentError, match="type proposal deve estar em proposals/"):
         load_documents(tmp_path)
+
+
+def test_supersedes_must_be_a_valid_existing_id(tmp_path: Path) -> None:
+    decisions = tmp_path / "decisions"
+    decisions.mkdir()
+    (decisions / "invalid.md").write_text(
+        VALID.replace("supersedes:", "supersedes: ../escape"), encoding="utf-8"
+    )
+    with pytest.raises(DocumentError, match="supersedes inválido"):
+        load_documents(tmp_path)
+
+    (decisions / "invalid.md").write_text(
+        VALID.replace("supersedes:", "supersedes: DEC-MISSING-001"), encoding="utf-8"
+    )
+    with pytest.raises(DocumentError, match="ID inexistente"):
+        load_documents(tmp_path)
+
+
+def test_document_cannot_supersede_itself(tmp_path: Path) -> None:
+    decisions = tmp_path / "decisions"
+    decisions.mkdir()
+    (decisions / "self.md").write_text(
+        VALID.replace("supersedes:", "supersedes: DEC-TEST-001"), encoding="utf-8"
+    )
+
+    with pytest.raises(DocumentError, match="não pode superseder a si mesmo"):
+        load_documents(tmp_path)
+
+
+def test_supersedes_graph_must_be_acyclic(tmp_path: Path) -> None:
+    decisions = tmp_path / "decisions"
+    decisions.mkdir()
+    first = VALID.replace("supersedes:", "supersedes: DEC-TEST-002")
+    second = VALID.replace("DEC-TEST-001", "DEC-TEST-002").replace(
+        "supersedes:", "supersedes: DEC-TEST-001"
+    )
+    (decisions / "first.md").write_text(first, encoding="utf-8")
+    (decisions / "second.md").write_text(second, encoding="utf-8")
+
+    with pytest.raises(DocumentError, match="ciclo em supersedes"):
+        load_documents(tmp_path)
+
+
+def test_supersedes_accepts_existing_acyclic_chain(tmp_path: Path) -> None:
+    decisions = tmp_path / "decisions"
+    decisions.mkdir()
+    (decisions / "first.md").write_text(VALID, encoding="utf-8")
+    second = VALID.replace("DEC-TEST-001", "DEC-TEST-002").replace(
+        "supersedes:", "supersedes: DEC-TEST-001"
+    )
+    (decisions / "second.md").write_text(second, encoding="utf-8")
+
+    assert [document.id for document in load_documents(tmp_path)] == [
+        "DEC-TEST-001",
+        "DEC-TEST-002",
+    ]

@@ -96,6 +96,9 @@ def parse_document(path: Path, root: Path) -> Document:
     created = str(metadata["created"])
     if not ID_PATTERN.fullmatch(document_id):
         raise DocumentError(f"{path}: id inválido")
+    supersedes = metadata.get("supersedes")
+    if supersedes and not ID_PATTERN.fullmatch(supersedes):
+        raise DocumentError(f"{path}: supersedes inválido")
     if document_type not in ALLOWED_TYPES:
         raise DocumentError(f"{path}: type inválido: {document_type}")
     if status not in ALLOWED_STATUSES:
@@ -142,7 +145,7 @@ def parse_document(path: Path, root: Path) -> Document:
         status=status,
         scope=str(metadata["scope"]),
         created=created,
-        supersedes=metadata.get("supersedes"),
+        supersedes=supersedes,
         title=title,
         content=body,
         path=relative_path,
@@ -172,4 +175,23 @@ def load_documents(root: Path) -> list[Document]:
             )
         seen[document.id] = document.path
         documents.append(document)
+
+    by_id = {document.id: document for document in documents}
+    for document in documents:
+        if document.supersedes == document.id:
+            raise DocumentError(f"{document.path.as_posix()}: documento não pode superseder a si mesmo")
+        if document.supersedes and document.supersedes not in by_id:
+            raise DocumentError(
+                f"{document.path.as_posix()}: supersedes referencia ID inexistente: "
+                f"{document.supersedes}"
+            )
+
+    for document in documents:
+        visited: set[str] = set()
+        current = document
+        while current.supersedes:
+            if current.id in visited:
+                raise DocumentError(f"ciclo em supersedes envolvendo {current.id}")
+            visited.add(current.id)
+            current = by_id[current.supersedes]
     return documents
