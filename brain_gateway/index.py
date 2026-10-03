@@ -39,6 +39,14 @@ def connect(db_path: Path) -> sqlite3.Connection:
     return connection
 
 
+def connect_existing(db_path: Path) -> sqlite3.Connection:
+    if not db_path.is_file():
+        raise FileNotFoundError(db_path)
+    connection = sqlite3.connect(db_path)
+    connection.row_factory = sqlite3.Row
+    return connection
+
+
 def _git_context(start: Path) -> tuple[Path, str] | None:
     try:
         root_result = subprocess.run(
@@ -125,7 +133,7 @@ def _row_to_dict(row: sqlite3.Row) -> dict[str, str | None]:
 
 
 def get_document(db_path: Path, document_id: str) -> dict[str, str | None] | None:
-    with connect(db_path) as connection:
+    with connect_existing(db_path) as connection:
         row = connection.execute(
             "SELECT * FROM documents WHERE id = ?", (document_id,)
         ).fetchone()
@@ -133,9 +141,7 @@ def get_document(db_path: Path, document_id: str) -> dict[str, str | None] | Non
 
 
 def index_document_count(db_path: Path) -> int:
-    if not db_path.is_file():
-        raise FileNotFoundError(db_path)
-    with sqlite3.connect(db_path) as connection:
+    with connect_existing(db_path) as connection:
         row = connection.execute("SELECT COUNT(*) FROM documents").fetchone()
     return int(row[0])
 
@@ -148,7 +154,7 @@ def _fts_query(query: str) -> str:
 
 
 def search_documents(db_path: Path, query: str, limit: int = 10) -> list[dict[str, str | None]]:
-    with connect(db_path) as connection:
+    with connect_existing(db_path) as connection:
         rows = connection.execute(
             """SELECT d.*, bm25(documents_fts, 0.0, 5.0, 1.0) AS score
             FROM documents_fts

@@ -56,6 +56,27 @@ def test_health_fails_when_index_is_missing(tmp_path: Path) -> None:
         assert response.json()["detail"] == "índice indisponível"
 
 
+def test_read_endpoints_fail_when_index_is_missing(tmp_path: Path) -> None:
+    client, _ = make_client(tmp_path)
+    with client:
+        (tmp_path / "brain.db").unlink()
+        responses = (
+            client.get(
+                "/api/v1/search", params={"q": "Presidente"}, headers=auth("token-a")
+            ),
+            client.get("/api/v1/documents/DEC-TEST-001", headers=auth("token-a")),
+            client.post(
+                "/api/v1/context",
+                json={"query": "Presidente"},
+                headers=auth("token-a"),
+            ),
+        )
+        for response in responses:
+            assert response.status_code == 503
+            assert response.json()["detail"] == "índice indisponível"
+        assert not (tmp_path / "brain.db").exists()
+
+
 def test_two_consumers_find_same_document(tmp_path: Path) -> None:
     client, _ = make_client(tmp_path)
     with client:

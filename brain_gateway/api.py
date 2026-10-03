@@ -73,13 +73,24 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     ) -> dict[str, object]:
         try:
             results = search_documents(resolved.db_path, q, limit)
+        except (FileNotFoundError, sqlite3.Error) as exc:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="índice indisponível",
+            ) from exc
         except ValueError as exc:
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
         return {"actor": actor, "results": results}
 
     @app.get("/api/v1/documents/{document_id}")
     def document(document_id: str, _: str = Depends(actor_from_token)) -> dict[str, object]:
-        result = get_document(resolved.db_path, document_id)
+        try:
+            result = get_document(resolved.db_path, document_id)
+        except (FileNotFoundError, sqlite3.Error) as exc:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="índice indisponível",
+            ) from exc
         if not result:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="documento não encontrado")
         return result
@@ -88,6 +99,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def context_pack(request: ContextRequest, actor: str = Depends(actor_from_token)) -> dict[str, object]:
         try:
             results = search_documents(resolved.db_path, request.query, request.limit)
+        except (FileNotFoundError, sqlite3.Error) as exc:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="índice indisponível",
+            ) from exc
         except ValueError as exc:
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
         groups: dict[str, list[dict[str, object]]] = {
@@ -119,11 +135,19 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.post("/api/v1/proposals", status_code=status.HTTP_201_CREATED)
     def proposal(request: ProposalRequest, actor: str = Depends(actor_from_token)) -> dict[str, object]:
-        if request.target_id and not get_document(resolved.db_path, request.target_id):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="documento alvo não encontrado",
-            )
+        if request.target_id:
+            try:
+                target = get_document(resolved.db_path, request.target_id)
+            except (FileNotFoundError, sqlite3.Error) as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail="índice indisponível",
+                ) from exc
+            if not target:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="documento alvo não encontrado",
+                )
         proposal_id, path, timestamp = create_proposal(
             resolved.brain_root,
             actor,
