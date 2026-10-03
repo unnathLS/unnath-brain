@@ -22,4 +22,5 @@ Data: 2026-10-03.
 - Distribuição após revisão final: clone limpo de `origin/development` construiu a imagem, compilou o pacote, passou em `pip check` e aprovou os 36 testes; diretório temporário removido após a validação.
 - Runtime mínimo: alvo Docker `runtime` validado sem `pytest`, `httpx` ou pacote `tests`; alvo `test` aprovou 36 testes, compilação e `pip check`; configuração Compose aprovada usando explicitamente o runtime.
 - Dependências reproduzíveis: build sem cache aprovado com backend e transitivas fixados em `constraints.txt`; teste de cobertura das distribuições instaladas, 37 testes, compilação e `pip check` aprovados; runtime permaneceu mínimo.
+- Imagem base reproduzível: índice multi-arquitetura de `python:3.12-slim` fixado por digest após confirmação no registry; build sem cache, verificação automática do Dockerfile, 38 testes, compilação e `pip check` aprovados.
 - Containers temporários do teste foram removidos; containers externos permaneceram intactos.
