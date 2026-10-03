@@ -41,10 +41,19 @@ def auth(token: str) -> dict[str, str]:
 def test_health_and_invalid_auth(tmp_path: Path) -> None:
     client, _ = make_client(tmp_path)
     with client:
-        assert client.get("/health").json() == {"status": "ok"}
+        assert client.get("/health").json() == {"status": "ok", "documents": 1}
         assert client.get("/api/v1/search", params={"q": "Presidente"}).status_code == 401
         assert client.get("/api/v1/search", params={"q": "Presidente"}, headers=auth("wrong")).status_code == 401
         assert client.get("/api/v1/search", params={"q": '"***"'}, headers=auth("token-a")).status_code == 422
+
+
+def test_health_fails_when_index_is_missing(tmp_path: Path) -> None:
+    client, _ = make_client(tmp_path)
+    with client:
+        (tmp_path / "brain.db").unlink()
+        response = client.get("/health")
+        assert response.status_code == 503
+        assert response.json()["detail"] == "índice indisponível"
 
 
 def test_two_consumers_find_same_document(tmp_path: Path) -> None:

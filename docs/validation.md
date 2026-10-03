@@ -14,4 +14,5 @@ Data: 2026-10-03.
 - Validação de governança impede `pending` fora de propostas e impede propostas com status diferente de `pending`.
 - Referência Git só é atribuída a documentos rastreados e sem alterações em relação ao `HEAD`.
 - Validação de distribuição: um clone limpo de `origin/development` gerou a imagem Docker, compilou o pacote, passou em `pip check` e aprovou os 18 testes.
+- Prontidão operacional: 21 testes aprovados; `brain_gateway.cli validate` confirmou os Markdown sem alterar o índice; `/health` confirmou o índice com `documents: 1`.
 - Containers temporários do teste foram removidos; containers externos permaneceram intactos.

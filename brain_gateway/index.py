@@ -132,6 +132,14 @@ def get_document(db_path: Path, document_id: str) -> dict[str, str | None] | Non
     return _row_to_dict(row) if row else None
 
 
+def index_document_count(db_path: Path) -> int:
+    if not db_path.is_file():
+        raise FileNotFoundError(db_path)
+    with sqlite3.connect(db_path) as connection:
+        row = connection.execute("SELECT COUNT(*) FROM documents").fetchone()
+    return int(row[0])
+
+
 def _fts_query(query: str) -> str:
     terms = re.findall(r"\w+", query, flags=re.UNICODE)
     if not terms:

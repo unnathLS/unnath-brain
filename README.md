@@ -23,6 +23,12 @@ Reconstrução explícita do índice:
 docker compose run --rm gateway python -m brain_gateway.cli rebuild
 ```
 
+Validação somente leitura dos Markdown:
+
+```bash
+docker compose run --rm --no-deps gateway python -m brain_gateway.cli validate
+```
+
 Testes:
 
 ```bash
@@ -31,4 +37,3 @@ docker run --rm unnath-brain:test pytest
 ```
 
 Consulte `docs/api.md` para o contrato resumido e `PROGRESS.md` para o estado.
-
