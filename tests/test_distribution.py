@@ -19,3 +19,11 @@ def test_compose_confines_runtime_container() -> None:
     assert re.search(r"^    cap_drop:\n      - ALL$", compose, flags=re.MULTILINE)
     assert "      - no-new-privileges:true" in compose
     assert "      - /tmp:rw,noexec,nosuid,size=64m" in compose
+
+
+def test_compose_bounds_runtime_logs() -> None:
+    compose = Path("compose.yaml").read_text(encoding="utf-8")
+
+    assert re.search(r"^    logging:\n      driver: json-file$", compose, flags=re.MULTILINE)
+    assert re.search(r'^        max-size: "10m"$', compose, flags=re.MULTILINE)
+    assert re.search(r'^        max-file: "3"$', compose, flags=re.MULTILINE)

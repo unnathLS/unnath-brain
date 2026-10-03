@@ -28,4 +28,5 @@ Data: 2026-10-03.
 - Integridade de sucessão: `supersedes` exige ID válido e existente, rejeita autorreferência e ciclos e aceita cadeias acíclicas; 49 testes, compilação e `pip check` aprovados.
 - Contexto aprovado: propostas `pending` permanecem disponíveis na busca administrativa, mas são excluídas dos context packs até se tornarem documentos `active`; 50 testes aprovados.
 - Confinamento do piloto: Compose e estado efetivo confirmaram raiz somente leitura, `cap_drop: ALL`, `no-new-privileges` e `/tmp` efêmero; escrita falhou na raiz e funcionou somente nos mounts de Brain e dados; health permaneceu íntegro com 1 documento; 51 testes aprovados.
+- Retenção de logs: driver efetivo `json-file` confirmado com `max-size: 10m` e `max-file: 3`; após recriação, health retornou `ok` e busca autenticada recuperou `DEC-TEST-001`; 52 testes aprovados.
 - Containers temporários do teste foram removidos; containers externos permaneceram intactos.
