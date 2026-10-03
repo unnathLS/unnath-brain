@@ -5,10 +5,11 @@ import sqlite3
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from .auth import authenticate
 from .config import Settings
+from .documents import ID_PATTERN
 from .index import get_document, index_document_count, rebuild_index, search_documents
 from .proposals import create_proposal
 
@@ -24,6 +25,20 @@ class ProposalRequest(BaseModel):
     title: str = Field(min_length=1, max_length=200)
     content: str = Field(min_length=1, max_length=50_000)
     target_id: str | None = Field(default=None, max_length=80)
+
+    @field_validator("title", "content")
+    @classmethod
+    def reject_blank_text(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("valor não pode conter apenas espaços")
+        return value.strip()
+
+    @field_validator("target_id")
+    @classmethod
+    def validate_target_id(cls, value: str | None) -> str | None:
+        if value is not None and not ID_PATTERN.fullmatch(value):
+            raise ValueError("target_id inválido")
+        return value
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -104,6 +119,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.post("/api/v1/proposals", status_code=status.HTTP_201_CREATED)
     def proposal(request: ProposalRequest, actor: str = Depends(actor_from_token)) -> dict[str, object]:
+        if request.target_id and not get_document(resolved.db_path, request.target_id):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="documento alvo não encontrado",
+            )
         proposal_id, path, timestamp = create_proposal(
             resolved.brain_root,
             actor,

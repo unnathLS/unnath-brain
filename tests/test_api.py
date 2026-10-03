@@ -115,3 +115,35 @@ def test_proposal_is_pending_and_preserves_decision(tmp_path: Path) -> None:
         assert 'author: "niyam"' in proposal
         assert "Proposta de texto" in proposal
         assert original_path.read_text(encoding="utf-8") == original
+
+
+def test_proposal_rejects_invalid_content_before_writing(tmp_path: Path) -> None:
+    client, brain = make_client(tmp_path)
+    with client:
+        for payload in (
+            {"title": "   ", "content": "texto"},
+            {"title": "Título", "content": "   "},
+            {"title": "Título", "content": "texto", "target_id": "../escape"},
+        ):
+            response = client.post(
+                "/api/v1/proposals", json=payload, headers=auth("token-a")
+            )
+            assert response.status_code == 422
+        assert list((brain / "proposals").iterdir()) == []
+
+
+def test_proposal_rejects_unknown_target_before_writing(tmp_path: Path) -> None:
+    client, brain = make_client(tmp_path)
+    with client:
+        response = client.post(
+            "/api/v1/proposals",
+            json={
+                "title": "Revisar documento ausente",
+                "content": "Aguardar a criação do alvo.",
+                "target_id": "DEC-UNKNOWN-001",
+            },
+            headers=auth("token-a"),
+        )
+        assert response.status_code == 404
+        assert response.json()["detail"] == "documento alvo não encontrado"
+        assert list((brain / "proposals").iterdir()) == []
