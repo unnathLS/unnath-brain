@@ -1,8 +1,11 @@
 # Progresso
 
-- Marco atual: BRAIN-007 concluído.
-- Estado: fluxo completo implementado; 13 testes aprovados; E2E, rebuild, Compose, restart e push aprovados.
+- Último marco: BRAIN-007 concluído; revisão final de endurecimento concluída.
+- Etapa atual: MVP pronto para revisão do Presidente e piloto local.
+- Testes: 18 aprovados; E2E, rebuild, Compose, restart, governança e entradas FTS aprovados.
+- Commits publicados: `44f7b78` (MVP) e `16cf518` (endurecimento) em `origin/development`.
 - Decisões: Markdown + Git como fonte; SQLite/FTS5 como índice derivado; API reservada para a porta 8080.
 - Restrições: Honcho, Hermes e Unnath HQ não serão modificados.
-- Próximo: revisão do Presidente e definição do piloto local.
+- Problemas: aviso de depreciação interno do Starlette nos testes; sem impacto funcional.
+- Próximos passos: revisão do Presidente e definição do piloto local.
 - Bloqueios: nenhum.
