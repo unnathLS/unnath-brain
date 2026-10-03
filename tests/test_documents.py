@@ -50,6 +50,15 @@ def test_invalid_document(tmp_path: Path, invalid: str) -> None:
         parse_document(path, tmp_path)
 
 
+def test_unknown_or_type_specific_frontmatter_fields_are_rejected(tmp_path: Path) -> None:
+    for field in ("stats: active", "author: niyam"):
+        path = tmp_path / "invalid.md"
+        path.write_text(VALID.replace("supersedes:", f"supersedes:\n{field}"), encoding="utf-8")
+
+        with pytest.raises(DocumentError, match="campos de frontmatter desconhecidos"):
+            parse_document(path, tmp_path)
+
+
 def test_duplicate_id(tmp_path: Path) -> None:
     decisions = tmp_path / "decisions"
     decisions.mkdir()

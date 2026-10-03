@@ -18,6 +18,8 @@ ALLOWED_TYPES = {
 }
 ALLOWED_STATUSES = {"draft", "active", "superseded", "archived", "pending"}
 REQUIRED_FIELDS = {"id", "type", "status", "scope", "created"}
+COMMON_FIELDS = REQUIRED_FIELDS | {"supersedes"}
+PROPOSAL_FIELDS = {"author", "timestamp", "target_id"}
 ID_PATTERN = re.compile(r"^[A-Z][A-Z0-9-]{2,79}$")
 TYPE_DIRECTORIES = {
     "decision": "decisions",
@@ -101,6 +103,12 @@ def parse_document(path: Path, root: Path) -> Document:
         raise DocumentError(f"{path}: supersedes inválido")
     if document_type not in ALLOWED_TYPES:
         raise DocumentError(f"{path}: type inválido: {document_type}")
+    allowed_fields = COMMON_FIELDS | (PROPOSAL_FIELDS if document_type == "proposal" else set())
+    unknown_fields = sorted(metadata.keys() - allowed_fields)
+    if unknown_fields:
+        raise DocumentError(
+            f"{path}: campos de frontmatter desconhecidos: {', '.join(unknown_fields)}"
+        )
     if status not in ALLOWED_STATUSES:
         raise DocumentError(f"{path}: status inválido: {status}")
     if document_type == "proposal":
