@@ -32,7 +32,7 @@ docker compose run --rm --no-deps gateway python -m brain_gateway.cli validate
 Testes:
 
 ```bash
-docker build -t unnath-brain:test .
+docker build --target test -t unnath-brain:test .
 docker run --rm unnath-brain:test pytest
 ```
 

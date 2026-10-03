@@ -1,6 +1,8 @@
 services:
   gateway:
-    build: .
+    build:
+      context: .
+      target: runtime
     restart: unless-stopped
     ports:
       - "127.0.0.1:${BRAIN_PORT:-8080}:8080"
@@ -14,4 +16,3 @@ services:
 
 volumes:
   brain-data:
-

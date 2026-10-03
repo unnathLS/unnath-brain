@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.12-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
@@ -7,10 +7,11 @@ WORKDIR /app
 
 COPY pyproject.toml README.md ./
 COPY brain_gateway ./brain_gateway
-RUN pip install --no-cache-dir ".[dev]"
 
+FROM base AS runtime
+
+RUN pip install --no-cache-dir .
 COPY brain ./brain
-COPY tests ./tests
 RUN mkdir -p /app/data
 
 EXPOSE 8080
@@ -20,3 +21,7 @@ HEALTHCHECK --interval=15s --timeout=3s --start-period=5s --retries=3 \
 
 CMD ["uvicorn", "brain_gateway.main:app", "--host", "0.0.0.0", "--port", "8080"]
 
+FROM runtime AS test
+
+RUN pip install --no-cache-dir ".[dev]"
+COPY tests ./tests

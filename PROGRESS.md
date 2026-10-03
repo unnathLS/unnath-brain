@@ -1,6 +1,6 @@
 # Progresso
 
-- Último marco: BRAIN-014 concluído; HEAD publicado validado a partir de clone limpo.
+- Último marco: BRAIN-015 concluído; imagens Docker de runtime e teste separadas.
 - Etapa atual: piloto local iniciado em 2026-10-03; MVP pronto para revisão do Presidente e observação de uso real.
 - Testes: 36 aprovados; E2E, rebuild, Compose, restart, governança, FTS, configuração, publicação atômica, clone limpo, validação CLI e health íntegro do índice aprovados; `pip check` sem conflitos.
 - Commits publicados: `44f7b78` (MVP), `16cf518` (endurecimento), `1902686` (operação), `1959775` (propostas válidas), `fdca86a` (falhas do índice), `96527a8` (health íntegro), `cbb85f3` (tokens fortes), `0766ee0` (propostas atômicas) e `1855345` (raiz válida) em `origin/development`.
@@ -16,6 +16,7 @@
   2. `BRAIN-012`: publicar propostas atomicamente para evitar leitura parcial durante rebuild — concluído; 35 testes aprovados.
   3. `BRAIN-013`: falhar quando a raiz canônica estiver ausente ou não for diretório — concluído; 36 testes aprovados.
   4. `BRAIN-014`: validar o HEAD publicado em clone limpo — concluído; build, compilação, `pip check` e 36 testes aprovados.
+  5. `BRAIN-015`: separar imagens Docker de runtime e teste — concluído; runtime sem ferramentas de desenvolvimento e 36 testes aprovados no alvo de teste.
 - Próximos passos: revisão do Presidente e observação de uso real; nenhuma funcionalidade adicional é necessária no escopo atual do MVP.
 - Bloqueios: nenhum.
 - Interrupções: shell sem rede exigiu aprovação única para atualizar o manual oficial do Codex; Docker recebeu regra persistente limitada a `docker compose`.
