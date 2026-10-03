@@ -140,10 +140,34 @@ def get_document(db_path: Path, document_id: str) -> dict[str, str | None] | Non
     return _row_to_dict(row) if row else None
 
 
-def index_document_count(db_path: Path) -> int:
+def index_health(db_path: Path) -> int:
     with connect_existing(db_path) as connection:
-        row = connection.execute("SELECT COUNT(*) FROM documents").fetchone()
-    return int(row[0])
+        quick_check = connection.execute("PRAGMA quick_check").fetchall()
+        if not quick_check or any(row[0] != "ok" for row in quick_check):
+            raise sqlite3.DatabaseError("falha na integridade do SQLite")
+        document_count = int(
+            connection.execute("SELECT COUNT(*) FROM documents").fetchone()[0]
+        )
+        fts_count = int(
+            connection.execute("SELECT COUNT(*) FROM documents_fts").fetchone()[0]
+        )
+        missing_fts = connection.execute(
+            """SELECT 1
+            FROM documents AS d
+            LEFT JOIN documents_fts AS f ON f.id = d.id
+            WHERE f.id IS NULL
+            LIMIT 1"""
+        ).fetchone()
+        orphaned_fts = connection.execute(
+            """SELECT 1
+            FROM documents_fts AS f
+            LEFT JOIN documents AS d ON d.id = f.id
+            WHERE d.id IS NULL
+            LIMIT 1"""
+        ).fetchone()
+        if document_count != fts_count or missing_fts or orphaned_fts:
+            raise sqlite3.DatabaseError("índice textual inconsistente")
+    return document_count
 
 
 def _fts_query(query: str) -> str:

@@ -1,6 +1,6 @@
 # API v1
 
-`GET /health` não exige autenticação e confirma a disponibilidade do índice, incluindo a contagem de documentos. Os endpoints sob `/api/v1` exigem `Authorization: Bearer <token>`.
+`GET /health` não exige autenticação e confirma a disponibilidade e a coerência mínima do índice, incluindo a contagem de documentos e o alinhamento com o FTS. Os endpoints sob `/api/v1` exigem `Authorization: Bearer <token>`.
 
 - `GET /api/v1/search?q=texto&limit=10`: busca textual com origem rastreável.
 - `GET /api/v1/documents/{id}`: recupera um documento pelo ID estável.

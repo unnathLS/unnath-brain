@@ -1,9 +1,11 @@
 from pathlib import Path
+import sqlite3
 
 from fastapi.testclient import TestClient
 
 from brain_gateway.api import create_app
 from brain_gateway.config import Settings
+from brain_gateway.index import rebuild_index
 
 
 DECISION = """---
@@ -54,6 +56,21 @@ def test_health_fails_when_index_is_missing(tmp_path: Path) -> None:
         response = client.get("/health")
         assert response.status_code == 503
         assert response.json()["detail"] == "índice indisponível"
+
+
+def test_health_detects_and_recovers_from_fts_inconsistency(tmp_path: Path) -> None:
+    client, _ = make_client(tmp_path)
+    database = tmp_path / "brain.db"
+    with client:
+        with sqlite3.connect(database) as connection:
+            connection.execute("DELETE FROM documents_fts")
+
+        response = client.get("/health")
+        assert response.status_code == 503
+        assert response.json()["detail"] == "índice indisponível"
+
+        rebuild_index(tmp_path / "brain", database)
+        assert client.get("/health").json() == {"status": "ok", "documents": 1}
 
 
 def test_read_endpoints_fail_when_index_is_missing(tmp_path: Path) -> None:

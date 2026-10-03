@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field, field_validator
 from .auth import authenticate
 from .config import Settings
 from .documents import ID_PATTERN
-from .index import get_document, index_document_count, rebuild_index, search_documents
+from .index import get_document, index_health, rebuild_index, search_documents
 from .proposals import create_proposal
 
 
@@ -57,7 +57,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/health")
     def health() -> dict[str, object]:
         try:
-            documents = index_document_count(resolved.db_path)
+            documents = index_health(resolved.db_path)
         except (FileNotFoundError, sqlite3.Error) as exc:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
