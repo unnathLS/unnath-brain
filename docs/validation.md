@@ -13,4 +13,5 @@ Data: 2026-10-03.
 - E2E de endurecimento: context pack com `project` e `mission` recuperou `DEC-TEST-001`; consulta composta apenas por sintaxe FTS retornou HTTP 422.
 - Validação de governança impede `pending` fora de propostas e impede propostas com status diferente de `pending`.
 - Referência Git só é atribuída a documentos rastreados e sem alterações em relação ao `HEAD`.
+- Validação de distribuição: um clone limpo de `origin/development` gerou a imagem Docker, compilou o pacote, passou em `pip check` e aprovou os 18 testes.
 - Containers temporários do teste foram removidos; containers externos permaneceram intactos.
