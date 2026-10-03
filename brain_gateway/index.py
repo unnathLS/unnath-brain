@@ -177,15 +177,24 @@ def _fts_query(query: str) -> str:
     return " AND ".join(f'"{term}"*' for term in terms)
 
 
-def search_documents(db_path: Path, query: str, limit: int = 10) -> list[dict[str, str | None]]:
+def search_documents(
+    db_path: Path,
+    query: str,
+    limit: int = 10,
+    status: str | None = None,
+) -> list[dict[str, str | None]]:
+    status_clause = " AND d.status = ?" if status else ""
+    parameters: tuple[object, ...] = (
+        (_fts_query(query), status, limit) if status else (_fts_query(query), limit)
+    )
     with connect_existing(db_path) as connection:
         rows = connection.execute(
-            """SELECT d.*, bm25(documents_fts, 0.0, 5.0, 1.0) AS score
+            f"""SELECT d.*, bm25(documents_fts, 0.0, 5.0, 1.0) AS score
             FROM documents_fts
             JOIN documents d ON d.id = documents_fts.id
-            WHERE documents_fts MATCH ?
+            WHERE documents_fts MATCH ?{status_clause}
             ORDER BY score, d.id
             LIMIT ?""",
-            (_fts_query(query), limit),
+            parameters,
         ).fetchall()
     return [_row_to_dict(row) for row in rows]

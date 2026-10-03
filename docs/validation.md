@@ -26,4 +26,5 @@ Data: 2026-10-03.
 - Identidades auditáveis: atores aceitam somente 1 a 64 caracteres alfanuméricos, ponto, sublinhado ou hífen; espaços internos, quebras de linha, caminhos e nomes longos são rejeitados; 42 testes, compilação e `pip check` aprovados.
 - Árvore canônica: decisões, procedimentos, conhecimento, projetos, companhia, agentes e propostas devem residir em seus diretórios correspondentes; `archive` e `inbox` preservam o fluxo de documentos não propositivos; 45 testes aprovados.
 - Integridade de sucessão: `supersedes` exige ID válido e existente, rejeita autorreferência e ciclos e aceita cadeias acíclicas; 49 testes, compilação e `pip check` aprovados.
+- Contexto aprovado: propostas `pending` permanecem disponíveis na busca administrativa, mas são excluídas dos context packs até se tornarem documentos `active`; 50 testes aprovados.
 - Containers temporários do teste foram removidos; containers externos permaneceram intactos.

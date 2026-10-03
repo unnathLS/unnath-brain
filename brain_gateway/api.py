@@ -98,7 +98,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.post("/api/v1/context")
     def context_pack(request: ContextRequest, actor: str = Depends(actor_from_token)) -> dict[str, object]:
         try:
-            results = search_documents(resolved.db_path, request.query, request.limit)
+            results = search_documents(
+                resolved.db_path, request.query, request.limit, status="active"
+            )
         except (FileNotFoundError, sqlite3.Error) as exc:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

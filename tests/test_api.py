@@ -155,6 +155,33 @@ def test_proposal_is_pending_and_preserves_decision(tmp_path: Path) -> None:
         assert original_path.read_text(encoding="utf-8") == original
 
 
+def test_pending_proposal_is_searchable_but_excluded_from_context(tmp_path: Path) -> None:
+    client, _ = make_client(tmp_path)
+    phrase = "hiperpropulsor"
+    with client:
+        created = client.post(
+            "/api/v1/proposals",
+            json={"title": "Proposta pendente", "content": phrase},
+            headers=auth("token-b"),
+        )
+        assert created.status_code == 201
+
+        search = client.get(
+            "/api/v1/search", params={"q": phrase}, headers=auth("token-a")
+        )
+        assert search.status_code == 200
+        assert search.json()["results"][0]["status"] == "pending"
+
+        context = client.post(
+            "/api/v1/context",
+            json={"query": phrase},
+            headers=auth("token-a"),
+        )
+        assert context.status_code == 200
+        assert context.json()["other"] == []
+        assert context.json()["sources"] == []
+
+
 def test_proposal_rejects_invalid_content_before_writing(tmp_path: Path) -> None:
     client, brain = make_client(tmp_path)
     with client:
