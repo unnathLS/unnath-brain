@@ -18,4 +18,5 @@ Data: 2026-10-03.
 - Ciclo autônomo de prontidão: 25 testes aprovados; propostas inválidas são rejeitadas antes da escrita, falhas do SQLite retornam HTTP 503 de forma consistente e o healthcheck detecta divergência entre documentos e FTS.
 - Revisão final de autenticação: 33 testes aprovados; configuração rejeita identidades vazias, tokens duplicados, espaços periféricos e tokens com menos de 32 caracteres; compilação e `pip check` aprovados.
 - Persistência de propostas: 35 testes aprovados; escrita temporária, `fsync` e publicação atômica impedem que rebuilds observem Markdown parcial e removem temporários após falhas.
+- Validação da raiz canônica: 36 testes aprovados; raiz ausente ou apontando para arquivo encerra a validação com código 1, sem criar índice vazio aparentemente saudável.
 - Containers temporários do teste foram removidos; containers externos permaneceram intactos.

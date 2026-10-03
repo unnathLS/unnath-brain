@@ -57,6 +57,17 @@ def test_duplicate_id(tmp_path: Path) -> None:
         load_documents(tmp_path)
 
 
+def test_load_documents_rejects_missing_or_non_directory_root(tmp_path: Path) -> None:
+    missing = tmp_path / "missing"
+    with pytest.raises(DocumentError, match="raiz do Brain ausente ou inválida"):
+        load_documents(missing)
+
+    regular_file = tmp_path / "brain.txt"
+    regular_file.write_text("não é um diretório", encoding="utf-8")
+    with pytest.raises(DocumentError, match="raiz do Brain ausente ou inválida"):
+        load_documents(regular_file)
+
+
 def test_pending_is_exclusive_to_proposals(tmp_path: Path) -> None:
     path = tmp_path / "decision.md"
     path.write_text(VALID.replace("status: active", "status: pending"), encoding="utf-8")

@@ -141,6 +141,8 @@ def parse_document(path: Path, root: Path) -> Document:
 
 
 def load_documents(root: Path) -> list[Document]:
+    if not root.is_dir():
+        raise DocumentError(f"{root}: raiz do Brain ausente ou inválida")
     documents: list[Document] = []
     seen: dict[str, Path] = {}
     for path in sorted(root.rglob("*.md")):
