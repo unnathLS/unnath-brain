@@ -59,6 +59,35 @@ def test_unknown_or_type_specific_frontmatter_fields_are_rejected(tmp_path: Path
             parse_document(path, tmp_path)
 
 
+@pytest.mark.parametrize("scope", ['" "', "duas palavras", "../../fora", "a" * 121])
+def test_scope_must_be_a_safe_identifier(tmp_path: Path, scope: str) -> None:
+    path = tmp_path / "invalid.md"
+    path.write_text(
+        VALID.replace("scope: unnath-corporation", f"scope: {scope}"),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(DocumentError, match="scope inválido"):
+        parse_document(path, tmp_path)
+
+
+def test_proposal_author_must_be_a_safe_actor_identity(tmp_path: Path) -> None:
+    proposal = (
+        VALID.replace("id: DEC-TEST-001", "id: PROP-TEST-001")
+        .replace("type: decision", "type: proposal")
+        .replace("status: active", "status: pending")
+        .replace(
+            "supersedes:\n",
+            'supersedes:\nauthor: "niyam admin"\ntimestamp: 2026-10-03T12:00:00+00:00\n',
+        )
+    )
+    path = tmp_path / "proposal.md"
+    path.write_text(proposal, encoding="utf-8")
+
+    with pytest.raises(DocumentError, match="author inválido"):
+        parse_document(path, tmp_path)
+
+
 def test_duplicate_id(tmp_path: Path) -> None:
     decisions = tmp_path / "decisions"
     decisions.mkdir()

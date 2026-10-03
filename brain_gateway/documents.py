@@ -6,6 +6,8 @@ from hashlib import sha256
 from pathlib import Path
 import re
 
+from .config import ACTOR_PATTERN
+
 
 ALLOWED_TYPES = {
     "decision",
@@ -21,6 +23,7 @@ REQUIRED_FIELDS = {"id", "type", "status", "scope", "created"}
 COMMON_FIELDS = REQUIRED_FIELDS | {"supersedes"}
 PROPOSAL_FIELDS = {"author", "timestamp", "target_id"}
 ID_PATTERN = re.compile(r"^[A-Z][A-Z0-9-]{2,79}$")
+SCOPE_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$")
 TYPE_DIRECTORIES = {
     "decision": "decisions",
     "procedure": "procedures",
@@ -96,6 +99,7 @@ def parse_document(path: Path, root: Path) -> Document:
     document_type = str(metadata["type"])
     status = str(metadata["status"])
     created = str(metadata["created"])
+    scope = str(metadata["scope"])
     if not ID_PATTERN.fullmatch(document_id):
         raise DocumentError(f"{path}: id inválido")
     supersedes = metadata.get("supersedes")
@@ -111,6 +115,8 @@ def parse_document(path: Path, root: Path) -> Document:
         )
     if status not in ALLOWED_STATUSES:
         raise DocumentError(f"{path}: status inválido: {status}")
+    if not SCOPE_PATTERN.fullmatch(scope):
+        raise DocumentError(f"{path}: scope inválido")
     if document_type == "proposal":
         missing_proposal = sorted(
             field for field in ("author", "timestamp") if not metadata.get(field)
@@ -121,6 +127,8 @@ def parse_document(path: Path, root: Path) -> Document:
             )
         if status != "pending":
             raise DocumentError(f"{path}: proposta deve permanecer pending")
+        if not ACTOR_PATTERN.fullmatch(str(metadata["author"])):
+            raise DocumentError(f"{path}: author inválido")
         try:
             timestamp = datetime.fromisoformat(str(metadata["timestamp"]))
         except ValueError as exc:
@@ -151,7 +159,7 @@ def parse_document(path: Path, root: Path) -> Document:
         id=document_id,
         type=document_type,
         status=status,
-        scope=str(metadata["scope"]),
+        scope=scope,
         created=created,
         supersedes=supersedes,
         title=title,

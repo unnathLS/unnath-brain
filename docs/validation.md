@@ -30,4 +30,5 @@ Data: 2026-10-03.
 - Confinamento do piloto: Compose e estado efetivo confirmaram raiz somente leitura, `cap_drop: ALL`, `no-new-privileges` e `/tmp` efêmero; escrita falhou na raiz e funcionou somente nos mounts de Brain e dados; health permaneceu íntegro com 1 documento; 51 testes aprovados.
 - Retenção de logs: driver efetivo `json-file` confirmado com `max-size: 10m` e `max-file: 3`; após recriação, health retornou `ok` e busca autenticada recuperou `DEC-TEST-001`; 52 testes aprovados.
 - Esquema documental estrito: campos desconhecidos e metadados exclusivos de propostas em outros tipos são rejeitados antes da indexação; 53 testes, compilação e `pip check` aprovados.
+- Metadados seguros: `scope` aceita somente identificadores de até 120 caracteres e autores de propostas seguem o mesmo contrato das identidades autenticadas; 58 testes aprovados.
 - Containers temporários do teste foram removidos; containers externos permaneceram intactos.
