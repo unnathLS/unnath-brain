@@ -24,5 +24,5 @@ CMD ["uvicorn", "brain_gateway.main:app", "--host", "0.0.0.0", "--port", "8080"]
 FROM runtime AS test
 
 RUN pip install --no-cache-dir --constraint constraints.txt ".[dev]"
-COPY Dockerfile ./Dockerfile
+COPY Dockerfile compose.yaml ./
 COPY tests ./tests

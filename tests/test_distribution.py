@@ -10,3 +10,12 @@ def test_python_base_image_is_pinned_by_digest() -> None:
         dockerfile,
         flags=re.MULTILINE,
     )
+
+
+def test_compose_confines_runtime_container() -> None:
+    compose = Path("compose.yaml").read_text(encoding="utf-8")
+
+    assert re.search(r"^    read_only: true$", compose, flags=re.MULTILINE)
+    assert re.search(r"^    cap_drop:\n      - ALL$", compose, flags=re.MULTILINE)
+    assert "      - no-new-privileges:true" in compose
+    assert "      - /tmp:rw,noexec,nosuid,size=64m" in compose
