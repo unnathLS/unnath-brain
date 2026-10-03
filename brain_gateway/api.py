@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
-from pathlib import Path
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, status
@@ -9,7 +8,6 @@ from pydantic import BaseModel, Field
 
 from .auth import authenticate
 from .config import Settings
-from .documents import DocumentError
 from .index import get_document, rebuild_index, search_documents
 from .proposals import create_proposal
 
@@ -109,4 +107,3 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         }
 
     return app
-

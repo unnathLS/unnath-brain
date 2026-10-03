@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from dataclasses import asdict
 from pathlib import Path
 import sqlite3
 import subprocess
 
-from .documents import Document, load_documents
+from .documents import load_documents
 
 
 SCHEMA = """
@@ -116,4 +115,3 @@ def search_documents(db_path: Path, query: str, limit: int = 10) -> list[dict[st
             (_fts_query(query), limit),
         ).fetchall()
     return [_row_to_dict(row) for row in rows]
-
