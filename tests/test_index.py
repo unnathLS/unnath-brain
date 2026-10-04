@@ -85,6 +85,22 @@ def test_connections_use_bounded_busy_timeout(tmp_path: Path) -> None:
     assert busy_timeout == index.SQLITE_BUSY_TIMEOUT_MS
 
 
+def test_index_schema_version_is_written_and_verified(tmp_path: Path) -> None:
+    brain = tmp_path / "brain"
+    (brain / "knowledge").mkdir(parents=True)
+    (brain / "knowledge" / "knowledge.md").write_text(DOCUMENT, encoding="utf-8")
+    database = tmp_path / "index.db"
+    rebuild_index(brain, database)
+
+    with sqlite3.connect(database) as connection:
+        version = connection.execute("PRAGMA user_version").fetchone()[0]
+        assert version == index.INDEX_SCHEMA_VERSION
+        connection.execute("PRAGMA user_version = 0")
+
+    with pytest.raises(sqlite3.DatabaseError, match="versão de esquema"):
+        index.index_health(database)
+
+
 def test_search_sanitizes_fts_syntax(tmp_path: Path) -> None:
     brain = tmp_path / "brain"
     (brain / "knowledge").mkdir(parents=True)

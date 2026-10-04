@@ -1,8 +1,8 @@
 # Progresso
 
-- Último marco: BRAIN-052 concluído; cadeias de sucessão não aceitam bifurcações.
+- Último marco: BRAIN-053 concluído; o índice derivado possui versão de esquema verificada.
 - Etapa atual: piloto local iniciado em 2026-10-03; MVP pronto para revisão do Presidente e observação de uso real.
-- Testes: 101 aprovados; E2E, concorrência, rebuild, Compose, restart, governança, FTS, configuração, rollback de propostas, publicação atômica, dependências, confinamento, recursos, privacidade e rotação de logs aprovados; compilação limpa e `pip check` sem conflitos.
+- Testes: 102 aprovados; E2E, concorrência, rebuild, Compose, restart, governança, FTS, configuração, rollback de propostas, publicação atômica, dependências, confinamento, recursos, privacidade e rotação de logs aprovados; compilação limpa e `pip check` sem conflitos.
 - Commits publicados: `44f7b78` (MVP), `1959775` (propostas válidas), `96527a8` (health íntegro), `0766ee0` (propostas atômicas), `1855345` (raiz válida), `075aee0` (clone limpo), `ada6a1c` (runtime mínimo), `2574e1b` (dependências fixadas), `f93ea4a` (imagem base), `f283ab2` (atores), `d9c4cda` (diretórios), `776a9d6` (sucessão), `b7860c6` (contexto ativo) e `4188b43` (confinamento) em `origin/development`.
 - Decisões: Markdown + Git como fonte; SQLite/FTS5 como índice derivado; API reservada para a porta 8080.
 - Restrições: Honcho, Hermes e Unnath HQ não serão modificados.
@@ -59,8 +59,8 @@
   5. `BRAIN-050`: normalizar e validar metadados dos context packs — concluído; 98 testes aprovados.
   6. `BRAIN-051`: rejeitar caracteres de controle nas consultas — concluído; busca e contexto validados em 100 testes.
   7. `BRAIN-052`: impedir bifurcações na cadeia de sucessão — concluído; 101 testes aprovados.
-  8. `BRAIN-053`: versionar e verificar o esquema do índice derivado — em execução.
-  9. `BRAIN-054`: aplicar o confinamento do índice também ao CLI — pendente.
+  8. `BRAIN-053`: versionar e verificar o esquema do índice derivado — concluído; 102 testes aprovados.
+  9. `BRAIN-054`: aplicar o confinamento do índice também ao CLI — em execução.
   10. `BRAIN-055`: completar cabeçalhos defensivos das respostas HTTP — pendente.
 - Próximos passos: concluir a defesa operacional e então retomar a revisão do Presidente e a observação de uso real.
 - Bloqueios: nenhum.

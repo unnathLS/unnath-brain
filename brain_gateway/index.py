@@ -12,6 +12,7 @@ SQLITE_TIMEOUT_SECONDS = 5.0
 SQLITE_BUSY_TIMEOUT_MS = 5_000
 MAX_QUERY_TERMS = 20
 QUERY_CONTROL_PATTERN = re.compile(r"[\x00-\x1f\x7f]")
+INDEX_SCHEMA_VERSION = 1
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS documents (
@@ -66,6 +67,7 @@ def connect(db_path: Path) -> sqlite3.Connection:
     connection = _open_connection(db_path)
     connection.executescript(SCHEMA)
     _ensure_governance_columns(connection)
+    connection.execute(f"PRAGMA user_version = {INDEX_SCHEMA_VERSION}")
     return connection
 
 
@@ -174,6 +176,9 @@ def get_document(db_path: Path, document_id: str) -> dict[str, str | None] | Non
 
 def index_health(db_path: Path) -> int:
     with connect_existing(db_path) as connection:
+        schema_version = int(connection.execute("PRAGMA user_version").fetchone()[0])
+        if schema_version != INDEX_SCHEMA_VERSION:
+            raise sqlite3.DatabaseError("versão de esquema do índice incompatível")
         quick_check = connection.execute("PRAGMA quick_check").fetchall()
         if not quick_check or any(row[0] != "ok" for row in quick_check):
             raise sqlite3.DatabaseError("falha na integridade do SQLite")
