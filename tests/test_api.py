@@ -197,6 +197,36 @@ def test_document_and_context(tmp_path: Path) -> None:
         assert context.json()["sources"][0]["path"] == "decisions/decision.md"
 
 
+def test_context_metadata_is_normalized_and_validated(tmp_path: Path) -> None:
+    client, _ = make_client(tmp_path)
+    with client:
+        valid = client.post(
+            "/api/v1/context",
+            json={
+                "project": "  unnath-hq  ",
+                "mission": "  revisar decisões  ",
+                "query": "Presidente",
+            },
+            headers=auth("token-a"),
+        )
+        blank = client.post(
+            "/api/v1/context",
+            json={"project": "   ", "query": "Presidente"},
+            headers=auth("token-a"),
+        )
+        controlled = client.post(
+            "/api/v1/context",
+            json={"mission": "linha\nseguinte", "query": "Presidente"},
+            headers=auth("token-a"),
+        )
+
+    assert valid.status_code == 200
+    assert valid.json()["project"] == "unnath-hq"
+    assert valid.json()["mission"] == "revisar decisões"
+    assert blank.status_code == 422
+    assert controlled.status_code == 422
+
+
 def test_document_route_rejects_invalid_id_before_index_lookup(
     tmp_path: Path, monkeypatch
 ) -> None:

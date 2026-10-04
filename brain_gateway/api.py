@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+import re
 import sqlite3
 from threading import Lock
 from typing import Annotated
@@ -15,6 +16,9 @@ from .index import get_document, index_health, rebuild_index, search_documents
 from .proposals import create_proposal
 
 
+INLINE_CONTROL_PATTERN = re.compile(r"[\x00-\x1f\x7f]")
+
+
 class APIRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -24,6 +28,16 @@ class ContextRequest(APIRequest):
     mission: str | None = Field(default=None, max_length=500)
     query: str = Field(min_length=1, max_length=500)
     limit: int = Field(default=10, ge=1, le=50)
+
+    @field_validator("project", "mission")
+    @classmethod
+    def normalize_optional_metadata(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip()
+        if not normalized or INLINE_CONTROL_PATTERN.search(normalized):
+            raise ValueError("metadado de contexto inválido")
+        return normalized
 
 
 class ProposalRequest(APIRequest):
