@@ -285,6 +285,25 @@ def test_document_cannot_supersede_itself(tmp_path: Path) -> None:
         load_documents(tmp_path)
 
 
+def test_supersedes_must_reference_same_document_type(tmp_path: Path) -> None:
+    decisions = tmp_path / "decisions"
+    knowledge = tmp_path / "knowledge"
+    decisions.mkdir()
+    knowledge.mkdir()
+    predecessor = (
+        VALID.replace("id: DEC-TEST-001", "id: KNOW-TEST-001")
+        .replace("type: decision", "type: knowledge")
+    )
+    successor = VALID.replace("id: DEC-TEST-001", "id: DEC-TEST-002").replace(
+        "supersedes:", "supersedes: KNOW-TEST-001"
+    )
+    (knowledge / "predecessor.md").write_text(predecessor, encoding="utf-8")
+    (decisions / "successor.md").write_text(successor, encoding="utf-8")
+
+    with pytest.raises(DocumentError, match="mesmo type"):
+        load_documents(tmp_path)
+
+
 def test_supersedes_graph_must_be_acyclic(tmp_path: Path) -> None:
     decisions = tmp_path / "decisions"
     decisions.mkdir()

@@ -231,6 +231,13 @@ def load_documents(root: Path) -> list[Document]:
                 f"{document.path.as_posix()}: supersedes referencia ID inexistente: "
                 f"{document.supersedes}"
             )
+        if document.supersedes:
+            predecessor = by_id[document.supersedes]
+            if predecessor.type != document.type:
+                raise DocumentError(
+                    f"{document.path.as_posix()}: supersedes deve referenciar "
+                    "documento do mesmo type"
+                )
         if document.target_id == document.id:
             raise DocumentError(f"{document.path.as_posix()}: proposta não pode apontar para si mesma")
         if document.target_id and document.target_id not in by_id:
