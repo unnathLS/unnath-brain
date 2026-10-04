@@ -9,6 +9,7 @@ import re
 
 MIN_API_TOKEN_LENGTH = 32
 ACTOR_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
+TOKEN_PATTERN = re.compile(rf"^[\x21-\x7e]{{{MIN_API_TOKEN_LENGTH},}}$")
 
 
 def validate_index_location(brain_root: Path, db_path: Path) -> None:
@@ -46,15 +47,14 @@ class Settings:
                 not isinstance(key, str)
                 or not ACTOR_PATTERN.fullmatch(key)
                 or not isinstance(value, str)
-                or len(value) < MIN_API_TOKEN_LENGTH
-                or value != value.strip()
+                or not TOKEN_PATTERN.fullmatch(value)
                 for key, value in tokens.items()
             )
             or len(set(tokens.values())) != len(tokens)
         ):
             raise RuntimeError(
                 "BRAIN_API_TOKENS deve mapear identidades válidas para tokens "
-                f"únicos com pelo menos {MIN_API_TOKEN_LENGTH} caracteres"
+                f"únicos com pelo menos {MIN_API_TOKEN_LENGTH} caracteres ASCII visíveis"
             )
         return cls(
             brain_root=Path(os.getenv("BRAIN_ROOT", "brain")),

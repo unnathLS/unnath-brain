@@ -56,6 +56,20 @@ def test_settings_reject_missing_or_invalid_json(monkeypatch) -> None:
         Settings.from_env()
 
 
+def test_settings_reject_nonportable_token_characters(monkeypatch) -> None:
+    invalid_tokens = (
+        "a" * 16 + "\n" + "b" * 16,
+        "a" * 31 + "\t",
+        "á" * MIN_API_TOKEN_LENGTH,
+        "a" * 31 + "\x7f",
+    )
+
+    for invalid in invalid_tokens:
+        monkeypatch.setenv("BRAIN_API_TOKENS", json.dumps({"unnatha": invalid}))
+        with pytest.raises(RuntimeError, match="ASCII visíveis"):
+            Settings.from_env()
+
+
 @pytest.mark.parametrize("relative_db", ["brain", "brain/data/brain.db"])
 def test_settings_reject_database_inside_canonical_root(
     tmp_path: Path, relative_db: str
