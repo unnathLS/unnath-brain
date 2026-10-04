@@ -1,8 +1,8 @@
 # Progresso
 
-- Último marco: BRAIN-058 concluído; o container trata sinais e encerramentos com janela explícita.
+- Último marco: BRAIN-059 concluído; o servidor limita explicitamente conexões concorrentes.
 - Etapa atual: piloto local iniciado em 2026-10-03; MVP pronto para revisão do Presidente e observação de uso real.
-- Testes: 106 aprovados; E2E, concorrência, rebuild, Compose, restart, governança, FTS, configuração, rollback de propostas, publicação atômica, dependências, confinamento, recursos, privacidade e rotação de logs aprovados; compilação limpa e `pip check` sem conflitos.
+- Testes: 107 aprovados; E2E, concorrência, rebuild, Compose, restart, governança, FTS, configuração, rollback de propostas, publicação atômica, dependências, confinamento, recursos, privacidade e rotação de logs aprovados; compilação limpa e `pip check` sem conflitos.
 - Commits publicados: `44f7b78` (MVP), `1959775` (propostas válidas), `96527a8` (health íntegro), `0766ee0` (propostas atômicas), `1855345` (raiz válida), `075aee0` (clone limpo), `ada6a1c` (runtime mínimo), `2574e1b` (dependências fixadas), `f93ea4a` (imagem base), `f283ab2` (atores), `d9c4cda` (diretórios), `776a9d6` (sucessão), `b7860c6` (contexto ativo) e `4188b43` (confinamento) em `origin/development`.
 - Decisões: Markdown + Git como fonte; SQLite/FTS5 como índice derivado; API reservada para a porta 8080.
 - Restrições: Honcho, Hermes e Unnath HQ não serão modificados.
@@ -67,6 +67,7 @@
 - Operação assistida:
   1. `BRAIN-057`: executar o runtime com usuário sem privilégios — concluído; identidade efetiva e escrita seletiva verificadas em 105 testes.
   2. `BRAIN-058`: tratar sinais e encerramento gracioso no Compose — concluído; init e janela de 10 segundos validados em 106 testes.
+  3. `BRAIN-059`: limitar conexões concorrentes do gateway — concluído; teto de 64 conexões validado em 107 testes.
 - Próximos passos: revisão do Presidente e observação de uso real; a defesa operacional do MVP está concluída.
 - Bloqueios: nenhum.
 - Interrupções: shell sem rede exigiu aprovação única para atualizar o manual oficial do Codex; Docker recebeu regra persistente limitada a `docker compose`.

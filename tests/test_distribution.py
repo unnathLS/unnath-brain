@@ -57,3 +57,9 @@ def test_compose_handles_shutdown_signals() -> None:
 
     assert re.search(r"^    init: true$", compose, flags=re.MULTILINE)
     assert re.search(r"^    stop_grace_period: 10s$", compose, flags=re.MULTILINE)
+
+
+def test_runtime_bounds_concurrent_connections() -> None:
+    dockerfile = Path("Dockerfile").read_text(encoding="utf-8")
+
+    assert '"--limit-concurrency", "64"' in dockerfile
