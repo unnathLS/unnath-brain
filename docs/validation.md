@@ -42,4 +42,5 @@ Data: 2026-10-03.
 - Rollback de publicação: falha simulada no rebuild retorna HTTP 503, remove o Markdown recém-criado e preserva o índice anterior saudável; 75 testes aprovados.
 - Concorrência de mutações: duas propostas simultâneas retornaram HTTP 201, a seção crítica permaneceu com concorrência máxima 1 e o health confirmou os 3 documentos esperados; 76 testes aprovados.
 - Limite documental: arquivos acima de 1.000.000 bytes são rejeitados antes da leitura em memória; 77 testes aprovados.
+- Robustez final do MVP: caracteres de controle são rejeitados; sucessões preservam tipo e cronologia; alvos de propostas devem estar ativos; metadados de governança são indexados com migração compatível; o healthcheck compara conteúdo do FTS; SQLite usa espera limitada; consultas aceitam até 20 termos; respostas usam `no-store`; compilação, `pip check` e 92 testes aprovados.
 - Containers temporários do teste foram removidos; containers externos permaneceram intactos.

@@ -1,8 +1,8 @@
 # Progresso
 
-- Último marco: BRAIN-044 concluído; consultas textuais aceitam no máximo 20 termos.
+- Último marco: BRAIN-045 concluído; respostas HTTP impedem armazenamento intermediário.
 - Etapa atual: piloto local iniciado em 2026-10-03; MVP pronto para revisão do Presidente e observação de uso real.
-- Testes: 91 aprovados; E2E, concorrência, rebuild, Compose, restart, governança, FTS, configuração, rollback de propostas, publicação atômica, dependências, confinamento, recursos, privacidade e rotação de logs aprovados; `pip check` sem conflitos.
+- Testes: 92 aprovados; E2E, concorrência, rebuild, Compose, restart, governança, FTS, configuração, rollback de propostas, publicação atômica, dependências, confinamento, recursos, privacidade e rotação de logs aprovados; compilação limpa e `pip check` sem conflitos.
 - Commits publicados: `44f7b78` (MVP), `1959775` (propostas válidas), `96527a8` (health íntegro), `0766ee0` (propostas atômicas), `1855345` (raiz válida), `075aee0` (clone limpo), `ada6a1c` (runtime mínimo), `2574e1b` (dependências fixadas), `f93ea4a` (imagem base), `f283ab2` (atores), `d9c4cda` (diretórios), `776a9d6` (sucessão), `b7860c6` (contexto ativo) e `4188b43` (confinamento) em `origin/development`.
 - Decisões: Markdown + Git como fonte; SQLite/FTS5 como índice derivado; API reservada para a porta 8080.
 - Restrições: Honcho, Hermes e Unnath HQ não serão modificados.
@@ -50,7 +50,7 @@
   7. `BRAIN-042`: verificar igualdade de título e conteúdo entre índice e FTS — concluído; 88 testes aprovados.
   8. `BRAIN-043`: configurar espera limitada para contenção do SQLite — concluído; 89 testes aprovados.
   9. `BRAIN-044`: limitar a complexidade das consultas por quantidade de termos — concluído; função e API validadas em 91 testes.
-  10. `BRAIN-045`: impedir armazenamento intermediário de respostas HTTP — em execução.
-- Próximos passos: revisão do Presidente e observação de uso real; os dezoito checkpoints adicionais do MVP estão concluídos.
+  10. `BRAIN-045`: impedir armazenamento intermediário de respostas HTTP — concluído; respostas de sucesso e erro validadas em 92 testes.
+- Próximos passos: revisão do Presidente e observação de uso real; os 38 checkpoints adicionais do MVP estão concluídos.
 - Bloqueios: nenhum.
 - Interrupções: shell sem rede exigiu aprovação única para atualizar o manual oficial do Codex; Docker recebeu regra persistente limitada a `docker compose`.

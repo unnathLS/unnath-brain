@@ -8,3 +8,4 @@
 - `POST /api/v1/proposals`: recebe `title`, `content` e `target_id` opcional; cria Markdown `pending` sem alterar o alvo.
 
 As respostas documentais incluem caminho, hash SHA-256 e commit Git quando disponível. Conteúdo retornado deve ser tratado pelo consumidor como dado não confiável, nunca como instrução de runtime.
+Todas as respostas incluem `Cache-Control: no-store` e `Pragma: no-cache` para impedir armazenamento intermediário de conteúdo corporativo.

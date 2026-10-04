@@ -53,6 +53,24 @@ def test_health_and_invalid_auth(tmp_path: Path) -> None:
         assert client.get("/api/v1/search", params={"q": '"***"'}, headers=auth("token-a")).status_code == 422
 
 
+def test_responses_disable_intermediate_storage(tmp_path: Path) -> None:
+    client, _ = make_client(tmp_path)
+    with client:
+        responses = (
+            client.get("/health"),
+            client.get("/api/v1/search", params={"q": "Presidente"}),
+            client.get(
+                "/api/v1/search",
+                params={"q": "Presidente"},
+                headers=auth("token-a"),
+            ),
+        )
+
+    for response in responses:
+        assert response.headers["Cache-Control"] == "no-store"
+        assert response.headers["Pragma"] == "no-cache"
+
+
 def test_search_rejects_more_than_twenty_terms(tmp_path: Path) -> None:
     client, _ = make_client(tmp_path)
     query = " ".join(f"termo{number}" for number in range(21))

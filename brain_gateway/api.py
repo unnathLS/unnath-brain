@@ -5,7 +5,7 @@ import sqlite3
 from threading import Lock
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query, status
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, status
 from pydantic import BaseModel, Field, field_validator
 
 from .auth import authenticate
@@ -53,6 +53,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         yield
 
     app = FastAPI(title="Unnath Brain Gateway", version="1.0.0", lifespan=lifespan)
+
+    @app.middleware("http")
+    async def prevent_response_storage(request: Request, call_next):
+        response = await call_next(request)
+        response.headers["Cache-Control"] = "no-store"
+        response.headers["Pragma"] = "no-cache"
+        return response
 
     def actor_from_token(authorization: Annotated[str | None, Header()] = None) -> str:
         return authenticate(authorization, resolved.api_tokens)
