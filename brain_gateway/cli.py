@@ -4,6 +4,7 @@ import argparse
 import os
 from pathlib import Path
 
+from .config import validate_index_location
 from .documents import DocumentError, load_documents
 from .index import rebuild_index
 
@@ -19,9 +20,10 @@ def main() -> None:
             count = len(load_documents(brain_root))
             print(f"Brain válido: {count} documento(s).")
         elif args.command == "rebuild":
+            validate_index_location(brain_root, db_path)
             count = rebuild_index(brain_root, db_path)
             print(f"Índice reconstruído: {count} documento(s).")
-    except DocumentError as exc:
+    except (DocumentError, RuntimeError) as exc:
         parser.exit(1, f"Erro de validação: {exc}\n")
 
 

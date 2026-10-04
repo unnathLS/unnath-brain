@@ -48,3 +48,22 @@ def test_validate_command_reports_invalid_document(
 
     assert exit_info.value.code == 1
     assert "Erro de validação" in capsys.readouterr().err
+
+
+def test_rebuild_rejects_database_inside_canonical_root(
+    tmp_path: Path, monkeypatch, capsys
+) -> None:
+    brain = tmp_path / "brain"
+    (brain / "knowledge").mkdir(parents=True)
+    (brain / "knowledge" / "document.md").write_text(VALID, encoding="utf-8")
+    database = brain / "data" / "brain.db"
+    monkeypatch.setenv("BRAIN_ROOT", str(brain))
+    monkeypatch.setenv("BRAIN_DB_PATH", str(database))
+    monkeypatch.setattr(sys, "argv", ["brain", "rebuild"])
+
+    with pytest.raises(SystemExit) as exit_info:
+        main()
+
+    assert exit_info.value.code == 1
+    assert "fora da fonte canônica" in capsys.readouterr().err
+    assert not database.exists()

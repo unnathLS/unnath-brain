@@ -11,6 +11,16 @@ MIN_API_TOKEN_LENGTH = 32
 ACTOR_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
 
 
+def validate_index_location(brain_root: Path, db_path: Path) -> None:
+    canonical_root = brain_root.resolve()
+    resolved_database = db_path.resolve()
+    try:
+        resolved_database.relative_to(canonical_root)
+    except ValueError:
+        return
+    raise RuntimeError("BRAIN_DB_PATH deve ficar fora da fonte canônica BRAIN_ROOT")
+
+
 @dataclass(frozen=True)
 class Settings:
     brain_root: Path
@@ -18,13 +28,7 @@ class Settings:
     api_tokens: dict[str, str]
 
     def __post_init__(self) -> None:
-        brain_root = self.brain_root.resolve()
-        db_path = self.db_path.resolve()
-        try:
-            db_path.relative_to(brain_root)
-        except ValueError:
-            return
-        raise RuntimeError("BRAIN_DB_PATH deve ficar fora da fonte canônica BRAIN_ROOT")
+        validate_index_location(self.brain_root, self.db_path)
 
     @classmethod
     def from_env(cls) -> "Settings":
