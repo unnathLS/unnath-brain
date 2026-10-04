@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from brain_gateway.documents import DocumentError
 from brain_gateway.proposals import create_proposal
 
 
@@ -54,3 +55,14 @@ def test_proposal_directory_cannot_be_a_symbolic_link(tmp_path: Path) -> None:
         create_proposal(brain, "unnatha", "Não escapar", "Conteúdo protegido.")
 
     assert list(outside.iterdir()) == []
+
+
+@pytest.mark.parametrize("content", ["# Segundo título\n\nTexto.", "## Apenas seção"])
+def test_invalid_canonical_proposal_is_not_published(
+    tmp_path: Path, content: str
+) -> None:
+    with pytest.raises(DocumentError):
+        create_proposal(tmp_path, "unnatha", "Título", content)
+
+    assert list(tmp_path.rglob("*.md")) == []
+    assert list(tmp_path.rglob("*.tmp")) == []

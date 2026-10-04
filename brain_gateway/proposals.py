@@ -6,6 +6,8 @@ from pathlib import Path
 import re
 from uuid import uuid4
 
+from .documents import parse_document
+
 
 def _frontmatter_value(value: str) -> str:
     return '"' + value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", " ") + '"'
@@ -56,6 +58,7 @@ def create_proposal(
             stream.write(document)
             stream.flush()
             os.fsync(stream.fileno())
+        parse_document(temporary_path, brain_root)
         temporary_path.replace(path)
     except BaseException:
         temporary_path.unlink(missing_ok=True)

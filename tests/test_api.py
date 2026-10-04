@@ -244,6 +244,8 @@ def test_proposal_rejects_invalid_content_before_writing(tmp_path: Path) -> None
             {"title": "   ", "content": "texto"},
             {"title": "Título", "content": "   "},
             {"title": "Título", "content": "texto", "target_id": "../escape"},
+            {"title": "Título", "content": "# Outro título\n\nTexto"},
+            {"title": "Título", "content": "## Apenas seção"},
         ):
             response = client.post(
                 "/api/v1/proposals", json=payload, headers=auth("token-a")

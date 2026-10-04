@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from .auth import authenticate
 from .config import Settings
-from .documents import ID_PATTERN
+from .documents import ID_PATTERN, DocumentError
 from .index import get_document, index_health, rebuild_index, search_documents
 from .proposals import create_proposal
 
@@ -166,13 +166,19 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                         status_code=status.HTTP_409_CONFLICT,
                         detail="documento alvo deve estar ativo e não ser proposta",
                     )
-            proposal_id, path, timestamp = create_proposal(
-                resolved.brain_root,
-                actor,
-                request.title,
-                request.content,
-                request.target_id,
-            )
+            try:
+                proposal_id, path, timestamp = create_proposal(
+                    resolved.brain_root,
+                    actor,
+                    request.title,
+                    request.content,
+                    request.target_id,
+                )
+            except DocumentError as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail="conteúdo da proposta não forma documento canônico",
+                ) from exc
             try:
                 rebuild_index(resolved.brain_root, resolved.db_path)
             except Exception as exc:
