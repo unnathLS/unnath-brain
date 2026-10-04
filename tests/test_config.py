@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import pytest
 
@@ -53,3 +54,27 @@ def test_settings_reject_missing_or_invalid_json(monkeypatch) -> None:
     monkeypatch.setenv("BRAIN_API_TOKENS", "not-json")
     with pytest.raises(RuntimeError, match="objeto JSON"):
         Settings.from_env()
+
+
+@pytest.mark.parametrize("relative_db", ["brain", "brain/data/brain.db"])
+def test_settings_reject_database_inside_canonical_root(
+    tmp_path: Path, relative_db: str
+) -> None:
+    brain = tmp_path / "brain"
+
+    with pytest.raises(RuntimeError, match="fora da fonte canônica"):
+        Settings(
+            brain_root=brain,
+            db_path=tmp_path / relative_db,
+            api_tokens={"unnatha": token("a")},
+        )
+
+
+def test_settings_accept_database_outside_canonical_root(tmp_path: Path) -> None:
+    settings = Settings(
+        brain_root=tmp_path / "brain",
+        db_path=tmp_path / "data" / "brain.db",
+        api_tokens={"unnatha": token("a")},
+    )
+
+    assert settings.db_path == tmp_path / "data" / "brain.db"

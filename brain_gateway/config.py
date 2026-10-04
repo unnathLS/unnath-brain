@@ -17,6 +17,15 @@ class Settings:
     db_path: Path
     api_tokens: dict[str, str]
 
+    def __post_init__(self) -> None:
+        brain_root = self.brain_root.resolve()
+        db_path = self.db_path.resolve()
+        try:
+            db_path.relative_to(brain_root)
+        except ValueError:
+            return
+        raise RuntimeError("BRAIN_DB_PATH deve ficar fora da fonte canônica BRAIN_ROOT")
+
     @classmethod
     def from_env(cls) -> "Settings":
         raw_tokens = os.getenv("BRAIN_API_TOKENS", "")
