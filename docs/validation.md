@@ -33,4 +33,5 @@ Data: 2026-10-03.
 - Metadados seguros: `scope` aceita somente identificadores de até 120 caracteres e autores de propostas seguem o mesmo contrato das identidades autenticadas; 58 testes aprovados.
 - Integridade de alvos: propostas adicionadas diretamente ao acervo também rejeitam `target_id` inexistente ou autorreferente e aceitam alvos canônicos existentes; 61 testes aprovados.
 - Separação da projeção: configurações diretas ou por ambiente falham quando `BRAIN_DB_PATH` coincide com ou fica abaixo de `BRAIN_ROOT`; índice externo aceito; 64 testes aprovados.
+- Recursos limitados: configuração e `HostConfig` efetivo confirmaram 1 CPU, 512 MB de memória e 128 processos; container permaneceu saudável; 65 testes aprovados.
 - Containers temporários do teste foram removidos; containers externos permaneceram intactos.

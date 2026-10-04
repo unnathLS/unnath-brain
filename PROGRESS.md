@@ -1,8 +1,8 @@
 # Progresso
 
-- Último marco: BRAIN-027 concluído; o índice derivado não pode ocupar a fonte canônica.
+- Último marco: BRAIN-028 concluído; o container do piloto possui limites de recursos.
 - Etapa atual: piloto local iniciado em 2026-10-03; MVP pronto para revisão do Presidente e observação de uso real.
-- Testes: 64 aprovados; E2E, rebuild, Compose, restart, governança, FTS, configuração, publicação atômica, dependências, confinamento e rotação de logs aprovados; `pip check` sem conflitos.
+- Testes: 65 aprovados; E2E, rebuild, Compose, restart, governança, FTS, configuração, publicação atômica, dependências, confinamento, recursos e rotação de logs aprovados; `pip check` sem conflitos.
 - Commits publicados: `44f7b78` (MVP), `1959775` (propostas válidas), `96527a8` (health íntegro), `0766ee0` (propostas atômicas), `1855345` (raiz válida), `075aee0` (clone limpo), `ada6a1c` (runtime mínimo), `2574e1b` (dependências fixadas), `f93ea4a` (imagem base), `f283ab2` (atores), `d9c4cda` (diretórios), `776a9d6` (sucessão), `b7860c6` (contexto ativo) e `4188b43` (confinamento) em `origin/development`.
 - Decisões: Markdown + Git como fonte; SQLite/FTS5 como índice derivado; API reservada para a porta 8080.
 - Restrições: Honcho, Hermes e Unnath HQ não serão modificados.
@@ -31,8 +31,8 @@
   2. `BRAIN-025`: validar valores escalares de metadados e autores de propostas — concluído; 58 testes aprovados.
   3. `BRAIN-026`: validar referências `target_id` no acervo canônico — concluído; 61 testes aprovados.
   4. `BRAIN-027`: impedir que o índice seja configurado dentro da fonte canônica — concluído; 64 testes aprovados.
-  5. `BRAIN-028`: limitar CPU, memória e processos do container — em execução.
-  6. `BRAIN-029`: impedir que consultas apareçam nos access logs — pendente.
+  5. `BRAIN-028`: limitar CPU, memória e processos do container — concluído; 1 CPU, 512 MB e 128 processos verificados no runtime.
+  6. `BRAIN-029`: impedir que consultas apareçam nos access logs — em execução.
 - Próximos passos: revisão do Presidente e observação de uso real; os seis checkpoints adicionais do MVP estão concluídos.
 - Bloqueios: nenhum.
 - Interrupções: shell sem rede exigiu aprovação única para atualizar o manual oficial do Codex; Docker recebeu regra persistente limitada a `docker compose`.

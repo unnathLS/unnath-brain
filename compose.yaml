@@ -4,6 +4,9 @@ services:
       context: .
       target: runtime
     restart: unless-stopped
+    cpus: "1.0"
+    mem_limit: 512m
+    pids_limit: 128
     read_only: true
     cap_drop:
       - ALL

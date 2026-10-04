@@ -27,3 +27,11 @@ def test_compose_bounds_runtime_logs() -> None:
     assert re.search(r"^    logging:\n      driver: json-file$", compose, flags=re.MULTILINE)
     assert re.search(r'^        max-size: "10m"$', compose, flags=re.MULTILINE)
     assert re.search(r'^        max-file: "3"$', compose, flags=re.MULTILINE)
+
+
+def test_compose_bounds_runtime_resources() -> None:
+    compose = Path("compose.yaml").read_text(encoding="utf-8")
+
+    assert re.search(r'^    cpus: "1\.0"$', compose, flags=re.MULTILINE)
+    assert re.search(r"^    mem_limit: 512m$", compose, flags=re.MULTILINE)
+    assert re.search(r"^    pids_limit: 128$", compose, flags=re.MULTILINE)
