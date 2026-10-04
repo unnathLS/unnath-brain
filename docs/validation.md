@@ -31,4 +31,5 @@ Data: 2026-10-03.
 - Retenção de logs: driver efetivo `json-file` confirmado com `max-size: 10m` e `max-file: 3`; após recriação, health retornou `ok` e busca autenticada recuperou `DEC-TEST-001`; 52 testes aprovados.
 - Esquema documental estrito: campos desconhecidos e metadados exclusivos de propostas em outros tipos são rejeitados antes da indexação; 53 testes, compilação e `pip check` aprovados.
 - Metadados seguros: `scope` aceita somente identificadores de até 120 caracteres e autores de propostas seguem o mesmo contrato das identidades autenticadas; 58 testes aprovados.
+- Integridade de alvos: propostas adicionadas diretamente ao acervo também rejeitam `target_id` inexistente ou autorreferente e aceitam alvos canônicos existentes; 61 testes aprovados.
 - Containers temporários do teste foram removidos; containers externos permaneceram intactos.

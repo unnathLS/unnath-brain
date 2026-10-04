@@ -231,3 +231,52 @@ def test_supersedes_accepts_existing_acyclic_chain(tmp_path: Path) -> None:
         "DEC-TEST-001",
         "DEC-TEST-002",
     ]
+
+
+def proposal_targeting(target_id: str) -> str:
+    return (
+        VALID.replace("id: DEC-TEST-001", "id: PROP-TEST-001")
+        .replace("type: decision", "type: proposal")
+        .replace("status: active", "status: pending")
+        .replace(
+            "supersedes:\n",
+            "supersedes:\nauthor: niyam\ntimestamp: 2026-10-03T12:00:00+00:00\n"
+            f"target_id: {target_id}\n",
+        )
+    )
+
+
+def test_proposal_target_must_exist_in_canonical_documents(tmp_path: Path) -> None:
+    proposals = tmp_path / "proposals"
+    proposals.mkdir()
+    (proposals / "proposal.md").write_text(
+        proposal_targeting("DEC-MISSING-001"), encoding="utf-8"
+    )
+
+    with pytest.raises(DocumentError, match="target_id referencia ID inexistente"):
+        load_documents(tmp_path)
+
+
+def test_proposal_cannot_target_itself(tmp_path: Path) -> None:
+    proposals = tmp_path / "proposals"
+    proposals.mkdir()
+    (proposals / "proposal.md").write_text(
+        proposal_targeting("PROP-TEST-001"), encoding="utf-8"
+    )
+
+    with pytest.raises(DocumentError, match="não pode apontar para si mesma"):
+        load_documents(tmp_path)
+
+
+def test_proposal_accepts_existing_target(tmp_path: Path) -> None:
+    decisions = tmp_path / "decisions"
+    proposals = tmp_path / "proposals"
+    decisions.mkdir()
+    proposals.mkdir()
+    (decisions / "decision.md").write_text(VALID, encoding="utf-8")
+    (proposals / "proposal.md").write_text(
+        proposal_targeting("DEC-TEST-001"), encoding="utf-8"
+    )
+
+    loaded = {document.id: document for document in load_documents(tmp_path)}
+    assert loaded["PROP-TEST-001"].target_id == "DEC-TEST-001"

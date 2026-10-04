@@ -48,6 +48,7 @@ class Document:
     scope: str
     created: str
     supersedes: str | None
+    target_id: str | None
     title: str
     content: str
     path: Path
@@ -135,11 +136,14 @@ def parse_document(path: Path, root: Path) -> Document:
             raise DocumentError(f"{path}: timestamp inválido") from exc
         if timestamp.tzinfo is None:
             raise DocumentError(f"{path}: timestamp deve incluir fuso horário")
-        if target_id := metadata.get("target_id"):
+        target_id = metadata.get("target_id")
+        if target_id:
             if not ID_PATTERN.fullmatch(target_id):
                 raise DocumentError(f"{path}: target_id inválido")
     elif status == "pending":
         raise DocumentError(f"{path}: status pending é exclusivo de propostas")
+    else:
+        target_id = None
     try:
         date.fromisoformat(created)
     except ValueError as exc:
@@ -162,6 +166,7 @@ def parse_document(path: Path, root: Path) -> Document:
         scope=scope,
         created=created,
         supersedes=supersedes,
+        target_id=target_id,
         title=title,
         content=body,
         path=relative_path,
@@ -200,6 +205,13 @@ def load_documents(root: Path) -> list[Document]:
             raise DocumentError(
                 f"{document.path.as_posix()}: supersedes referencia ID inexistente: "
                 f"{document.supersedes}"
+            )
+        if document.target_id == document.id:
+            raise DocumentError(f"{document.path.as_posix()}: proposta não pode apontar para si mesma")
+        if document.target_id and document.target_id not in by_id:
+            raise DocumentError(
+                f"{document.path.as_posix()}: target_id referencia ID inexistente: "
+                f"{document.target_id}"
             )
 
     for document in documents:
