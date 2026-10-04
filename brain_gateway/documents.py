@@ -238,6 +238,11 @@ def load_documents(root: Path) -> list[Document]:
                     f"{document.path.as_posix()}: supersedes deve referenciar "
                     "documento do mesmo type"
                 )
+            if document.created < predecessor.created:
+                raise DocumentError(
+                    f"{document.path.as_posix()}: created não pode ser anterior "
+                    "ao documento superseded"
+                )
         if document.target_id == document.id:
             raise DocumentError(f"{document.path.as_posix()}: proposta não pode apontar para si mesma")
         if document.target_id and document.target_id not in by_id:
