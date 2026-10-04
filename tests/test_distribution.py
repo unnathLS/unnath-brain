@@ -50,3 +50,10 @@ def test_compose_bounds_runtime_resources() -> None:
     assert re.search(r'^    cpus: "1\.0"$', compose, flags=re.MULTILINE)
     assert re.search(r"^    mem_limit: 512m$", compose, flags=re.MULTILINE)
     assert re.search(r"^    pids_limit: 128$", compose, flags=re.MULTILINE)
+
+
+def test_compose_handles_shutdown_signals() -> None:
+    compose = Path("compose.yaml").read_text(encoding="utf-8")
+
+    assert re.search(r"^    init: true$", compose, flags=re.MULTILINE)
+    assert re.search(r"^    stop_grace_period: 10s$", compose, flags=re.MULTILINE)

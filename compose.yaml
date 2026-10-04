@@ -3,7 +3,9 @@ services:
     build:
       context: .
       target: runtime
+    init: true
     restart: unless-stopped
+    stop_grace_period: 10s
     cpus: "1.0"
     mem_limit: 512m
     pids_limit: 128
