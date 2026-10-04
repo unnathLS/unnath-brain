@@ -77,4 +77,4 @@
   10. `BRAIN-066`: alinhar estados com a cadeia de sucessão — concluído; predecessores e órfãos `superseded` cobertos em 116 testes.
 - Próximos passos: revisão do Presidente e observação de uso real; a defesa operacional do MVP está concluída.
 - Bloqueios: nenhum.
-- Interrupções: shell sem rede exigiu aprovação única para atualizar o manual oficial do Codex; Docker recebeu regra persistente limitada a `docker compose`.
+- Interrupções: shell sem rede exigiu aprovação única para atualizar o manual oficial do Codex; Docker recebeu regra persistente limitada a `docker compose`. Na migração para usuário não-root, o volume derivado existente precisou de ajuste único de propriedade antes do restart saudável. Uma rede Docker `internal` foi testada e descartada antes do commit porque no Docker Desktop ela também suprimiu a publicação em loopback; o isolamento foi substituído por limite explícito de concorrência sem interromper o piloto.
