@@ -8,6 +8,9 @@ import subprocess
 from .documents import load_documents
 
 
+SQLITE_TIMEOUT_SECONDS = 5.0
+SQLITE_BUSY_TIMEOUT_MS = 5_000
+
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS documents (
     id TEXT PRIMARY KEY,
@@ -49,10 +52,16 @@ def _ensure_governance_columns(connection: sqlite3.Connection) -> None:
             connection.execute(f"ALTER TABLE documents ADD COLUMN {name} {definition}")
 
 
+def _open_connection(db_path: Path) -> sqlite3.Connection:
+    connection = sqlite3.connect(db_path, timeout=SQLITE_TIMEOUT_SECONDS)
+    connection.row_factory = sqlite3.Row
+    connection.execute(f"PRAGMA busy_timeout = {SQLITE_BUSY_TIMEOUT_MS}")
+    return connection
+
+
 def connect(db_path: Path) -> sqlite3.Connection:
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    connection = sqlite3.connect(db_path)
-    connection.row_factory = sqlite3.Row
+    connection = _open_connection(db_path)
     connection.executescript(SCHEMA)
     _ensure_governance_columns(connection)
     return connection
@@ -61,9 +70,7 @@ def connect(db_path: Path) -> sqlite3.Connection:
 def connect_existing(db_path: Path) -> sqlite3.Connection:
     if not db_path.is_file():
         raise FileNotFoundError(db_path)
-    connection = sqlite3.connect(db_path)
-    connection.row_factory = sqlite3.Row
-    return connection
+    return _open_connection(db_path)
 
 
 def _git_context(start: Path) -> tuple[Path, str] | None:

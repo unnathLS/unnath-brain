@@ -72,6 +72,19 @@ def test_rebuild_migrates_governance_columns_in_existing_database(tmp_path: Path
     assert {"author", "timestamp", "target_id"} <= columns
 
 
+def test_connections_use_bounded_busy_timeout(tmp_path: Path) -> None:
+    brain = tmp_path / "brain"
+    (brain / "knowledge").mkdir(parents=True)
+    (brain / "knowledge" / "knowledge.md").write_text(DOCUMENT, encoding="utf-8")
+    database = tmp_path / "index.db"
+    rebuild_index(brain, database)
+
+    with index.connect_existing(database) as connection:
+        busy_timeout = connection.execute("PRAGMA busy_timeout").fetchone()[0]
+
+    assert busy_timeout == index.SQLITE_BUSY_TIMEOUT_MS
+
+
 def test_search_sanitizes_fts_syntax(tmp_path: Path) -> None:
     brain = tmp_path / "brain"
     (brain / "knowledge").mkdir(parents=True)
