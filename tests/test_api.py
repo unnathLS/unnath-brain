@@ -83,6 +83,25 @@ def test_search_rejects_more_than_twenty_terms(tmp_path: Path) -> None:
     assert response.json()["detail"] == "consulta excede o limite de 20 termos"
 
 
+def test_json_requests_reject_unknown_fields(tmp_path: Path) -> None:
+    client, brain = make_client(tmp_path)
+    with client:
+        context = client.post(
+            "/api/v1/context",
+            json={"query": "Presidente", "unexpected": True},
+            headers=auth("token-a"),
+        )
+        proposal = client.post(
+            "/api/v1/proposals",
+            json={"title": "Título", "content": "Texto", "autor": "intruso"},
+            headers=auth("token-a"),
+        )
+
+    assert context.status_code == 422
+    assert proposal.status_code == 422
+    assert list((brain / "proposals").iterdir()) == []
+
+
 def test_health_fails_when_index_is_missing(tmp_path: Path) -> None:
     client, _ = make_client(tmp_path)
     with client:

@@ -6,7 +6,7 @@ from threading import Lock
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, status
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from .auth import authenticate
 from .config import Settings
@@ -15,14 +15,18 @@ from .index import get_document, index_health, rebuild_index, search_documents
 from .proposals import create_proposal
 
 
-class ContextRequest(BaseModel):
+class APIRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+
+class ContextRequest(APIRequest):
     project: str | None = Field(default=None, max_length=120)
     mission: str | None = Field(default=None, max_length=500)
     query: str = Field(min_length=1, max_length=500)
     limit: int = Field(default=10, ge=1, le=50)
 
 
-class ProposalRequest(BaseModel):
+class ProposalRequest(APIRequest):
     title: str = Field(min_length=1, max_length=200)
     content: str = Field(min_length=1, max_length=50_000)
     target_id: str | None = Field(default=None, max_length=80)
