@@ -157,6 +157,12 @@ def test_proposal_is_pending_and_preserves_decision(tmp_path: Path) -> None:
         assert 'author: "niyam"' in proposal
         assert "Proposta de texto" in proposal
         assert original_path.read_text(encoding="utf-8") == original
+        indexed = client.get(
+            f"/api/v1/documents/{payload['id']}", headers=auth("token-a")
+        ).json()
+        assert indexed["author"] == "niyam"
+        assert indexed["timestamp"] == payload["timestamp"]
+        assert indexed["target_id"] == "DEC-TEST-001"
 
 
 def test_pending_proposal_is_searchable_but_excluded_from_context(tmp_path: Path) -> None:

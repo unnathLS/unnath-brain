@@ -1,4 +1,5 @@
 from pathlib import Path
+import sqlite3
 import subprocess
 
 import pytest
@@ -47,6 +48,28 @@ def test_files_outside_brain_are_not_indexed(tmp_path: Path) -> None:
     rebuild_index(brain, database)
 
     assert search_documents(database, "top-secret") == []
+
+
+def test_rebuild_migrates_governance_columns_in_existing_database(tmp_path: Path) -> None:
+    brain = tmp_path / "brain"
+    (brain / "knowledge").mkdir(parents=True)
+    (brain / "knowledge" / "knowledge.md").write_text(DOCUMENT, encoding="utf-8")
+    database = tmp_path / "index.db"
+    with sqlite3.connect(database) as connection:
+        connection.execute(
+            """CREATE TABLE documents (
+                id TEXT PRIMARY KEY, type TEXT NOT NULL, status TEXT NOT NULL,
+                scope TEXT NOT NULL, created TEXT NOT NULL, supersedes TEXT,
+                title TEXT NOT NULL, content TEXT NOT NULL, path TEXT NOT NULL,
+                content_hash TEXT NOT NULL, git_ref TEXT
+            )"""
+        )
+
+    rebuild_index(brain, database)
+
+    with sqlite3.connect(database) as connection:
+        columns = {row[1] for row in connection.execute("PRAGMA table_info(documents)")}
+    assert {"author", "timestamp", "target_id"} <= columns
 
 
 def test_search_sanitizes_fts_syntax(tmp_path: Path) -> None:

@@ -50,6 +50,8 @@ class Document:
     scope: str
     created: str
     supersedes: str | None
+    author: str | None
+    timestamp: str | None
     target_id: str | None
     title: str
     content: str
@@ -141,6 +143,8 @@ def parse_document(path: Path, root: Path) -> Document:
         raise DocumentError(f"{path}: status inválido: {status}")
     if not SCOPE_PATTERN.fullmatch(scope):
         raise DocumentError(f"{path}: scope inválido")
+    author = None
+    timestamp_value = None
     if document_type == "proposal":
         missing_proposal = sorted(
             field for field in ("author", "timestamp") if not metadata.get(field)
@@ -151,10 +155,12 @@ def parse_document(path: Path, root: Path) -> Document:
             )
         if status != "pending":
             raise DocumentError(f"{path}: proposta deve permanecer pending")
-        if not ACTOR_PATTERN.fullmatch(str(metadata["author"])):
+        author = str(metadata["author"])
+        timestamp_value = str(metadata["timestamp"])
+        if not ACTOR_PATTERN.fullmatch(author):
             raise DocumentError(f"{path}: author inválido")
         try:
-            timestamp = datetime.fromisoformat(str(metadata["timestamp"]))
+            timestamp = datetime.fromisoformat(timestamp_value)
         except ValueError as exc:
             raise DocumentError(f"{path}: timestamp inválido") from exc
         if timestamp.tzinfo is None:
@@ -191,6 +197,8 @@ def parse_document(path: Path, root: Path) -> Document:
         scope=scope,
         created=created,
         supersedes=supersedes,
+        author=author,
+        timestamp=timestamp_value,
         target_id=target_id,
         title=title,
         content=body,

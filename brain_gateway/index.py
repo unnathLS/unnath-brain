@@ -16,6 +16,9 @@ CREATE TABLE IF NOT EXISTS documents (
     scope TEXT NOT NULL,
     created TEXT NOT NULL,
     supersedes TEXT,
+    author TEXT,
+    timestamp TEXT,
+    target_id TEXT,
     title TEXT NOT NULL,
     content TEXT NOT NULL,
     path TEXT NOT NULL,
@@ -30,12 +33,28 @@ CREATE VIRTUAL TABLE IF NOT EXISTS documents_fts USING fts5(
 );
 """
 
+GOVERNANCE_COLUMNS = {
+    "author": "TEXT",
+    "timestamp": "TEXT",
+    "target_id": "TEXT",
+}
+
+
+def _ensure_governance_columns(connection: sqlite3.Connection) -> None:
+    existing = {
+        row[1] for row in connection.execute("PRAGMA table_info(documents)").fetchall()
+    }
+    for name, definition in GOVERNANCE_COLUMNS.items():
+        if name not in existing:
+            connection.execute(f"ALTER TABLE documents ADD COLUMN {name} {definition}")
+
 
 def connect(db_path: Path) -> sqlite3.Connection:
     db_path.parent.mkdir(parents=True, exist_ok=True)
     connection = sqlite3.connect(db_path)
     connection.row_factory = sqlite3.Row
     connection.executescript(SCHEMA)
+    _ensure_governance_columns(connection)
     return connection
 
 
@@ -105,8 +124,9 @@ def rebuild_index(brain_root: Path, db_path: Path) -> int:
         for document in documents:
             connection.execute(
                 """INSERT INTO documents
-                (id, type, status, scope, created, supersedes, title, content, path, content_hash, git_ref)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (id, type, status, scope, created, supersedes, author, timestamp,
+                 target_id, title, content, path, content_hash, git_ref)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
                     document.id,
                     document.type,
@@ -114,6 +134,9 @@ def rebuild_index(brain_root: Path, db_path: Path) -> int:
                     document.scope,
                     document.created,
                     document.supersedes,
+                    document.author,
+                    document.timestamp,
+                    document.target_id,
                     document.title,
                     document.content,
                     document.path.as_posix(),
