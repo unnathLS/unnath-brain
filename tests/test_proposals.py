@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from brain_gateway import proposals as proposals_module
 from brain_gateway.documents import DocumentError
 from brain_gateway.proposals import create_proposal
 
@@ -42,6 +43,17 @@ def test_failed_atomic_publish_leaves_no_partial_file(
 
     assert list(tmp_path.rglob("*.md")) == []
     assert list(tmp_path.rglob("*.tmp")) == []
+
+
+def test_proposal_publication_syncs_parent_directory(
+    tmp_path: Path, monkeypatch
+) -> None:
+    synchronized: list[Path] = []
+    monkeypatch.setattr(proposals_module, "_fsync_directory", synchronized.append)
+
+    create_proposal(tmp_path, "unnatha", "Durável", "Conteúdo persistente.")
+
+    assert synchronized == [tmp_path / "proposals"]
 
 
 def test_proposal_directory_cannot_be_a_symbolic_link(tmp_path: Path) -> None:

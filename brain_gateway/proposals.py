@@ -9,6 +9,16 @@ from uuid import uuid4
 from .documents import parse_document
 
 
+def _fsync_directory(path: Path) -> None:
+    if os.name != "posix":
+        return
+    descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
 def _frontmatter_value(value: str) -> str:
     return '"' + value.replace("\\", "\\\\").replace('"', '\\"').replace("\n", " ") + '"'
 
@@ -53,6 +63,7 @@ def create_proposal(
         metadata
         + ["---", "", f"# {_safe_title(title)}", "", content.strip(), ""]
     )
+    published = False
     try:
         with temporary_path.open("x", encoding="utf-8", newline="\n") as stream:
             stream.write(document)
@@ -60,7 +71,15 @@ def create_proposal(
             os.fsync(stream.fileno())
         parse_document(temporary_path, brain_root)
         temporary_path.replace(path)
+        published = True
+        _fsync_directory(path.parent)
     except BaseException:
         temporary_path.unlink(missing_ok=True)
+        if published:
+            path.unlink(missing_ok=True)
+            try:
+                _fsync_directory(path.parent)
+            except OSError:
+                pass
         raise
     return proposal_id, relative_path, now.isoformat()

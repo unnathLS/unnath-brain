@@ -6,6 +6,7 @@
 - O índice SQLite/FTS5 em `data/` é apenas uma projeção reconstruível.
 - O Brain Gateway expõe leitura, montagem de contexto e criação de propostas.
 - Propostas entram em `brain/proposals/` como `pending` e não alteram documentos ativos.
+- A publicação de propostas sincroniza o arquivo temporário e o diretório antes de confirmar sucesso.
 - Tokens ficam no ambiente, nunca em Markdown ou no índice.
 - Consultas e caminhos HTTP não são copiados para logs de acesso; logs de aplicação e erros permanecem ativos.
 
