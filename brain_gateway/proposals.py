@@ -27,7 +27,13 @@ def create_proposal(
     relative_path = Path("proposals") / f"{proposal_id.lower()}.md"
     path = brain_root / relative_path
     temporary_path = path.with_suffix(path.suffix + ".tmp")
+    if brain_root.is_symlink() or path.parent.is_symlink():
+        raise OSError("diretório de propostas não pode ser link simbólico")
     path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        path.parent.resolve().relative_to(brain_root.resolve())
+    except ValueError as exc:
+        raise OSError("diretório de propostas fora da raiz do Brain") from exc
     metadata = [
         "---",
         f"id: {proposal_id}",

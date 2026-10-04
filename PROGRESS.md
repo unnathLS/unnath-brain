@@ -1,8 +1,8 @@
 # Progresso
 
-- Último marco: BRAIN-045 concluído; respostas HTTP impedem armazenamento intermediário.
+- Último marco: BRAIN-046 concluído; propostas não podem ser publicadas por diretório simbólico.
 - Etapa atual: piloto local iniciado em 2026-10-03; MVP pronto para revisão do Presidente e observação de uso real.
-- Testes: 92 aprovados; E2E, concorrência, rebuild, Compose, restart, governança, FTS, configuração, rollback de propostas, publicação atômica, dependências, confinamento, recursos, privacidade e rotação de logs aprovados; compilação limpa e `pip check` sem conflitos.
+- Testes: 93 aprovados; E2E, concorrência, rebuild, Compose, restart, governança, FTS, configuração, rollback de propostas, publicação atômica, dependências, confinamento, recursos, privacidade e rotação de logs aprovados; compilação limpa e `pip check` sem conflitos.
 - Commits publicados: `44f7b78` (MVP), `1959775` (propostas válidas), `96527a8` (health íntegro), `0766ee0` (propostas atômicas), `1855345` (raiz válida), `075aee0` (clone limpo), `ada6a1c` (runtime mínimo), `2574e1b` (dependências fixadas), `f93ea4a` (imagem base), `f283ab2` (atores), `d9c4cda` (diretórios), `776a9d6` (sucessão), `b7860c6` (contexto ativo) e `4188b43` (confinamento) em `origin/development`.
 - Decisões: Markdown + Git como fonte; SQLite/FTS5 como índice derivado; API reservada para a porta 8080.
 - Restrições: Honcho, Hermes e Unnath HQ não serão modificados.
@@ -51,6 +51,17 @@
   8. `BRAIN-043`: configurar espera limitada para contenção do SQLite — concluído; 89 testes aprovados.
   9. `BRAIN-044`: limitar a complexidade das consultas por quantidade de termos — concluído; função e API validadas em 91 testes.
   10. `BRAIN-045`: impedir armazenamento intermediário de respostas HTTP — concluído; respostas de sucesso e erro validadas em 92 testes.
-- Próximos passos: revisão do Presidente e observação de uso real; os 38 checkpoints adicionais do MVP estão concluídos.
+- Defesa operacional do MVP:
+  1. `BRAIN-046`: impedir publicação de propostas por diretório simbólico — concluído; 93 testes aprovados.
+  2. `BRAIN-047`: validar a forma canônica da proposta antes da publicação — em execução.
+  3. `BRAIN-048`: rejeitar campos JSON desconhecidos nas requisições — pendente.
+  4. `BRAIN-049`: validar IDs recebidos pela rota documental — pendente.
+  5. `BRAIN-050`: normalizar e validar metadados dos context packs — pendente.
+  6. `BRAIN-051`: rejeitar caracteres de controle nas consultas — pendente.
+  7. `BRAIN-052`: impedir bifurcações na cadeia de sucessão — pendente.
+  8. `BRAIN-053`: versionar e verificar o esquema do índice derivado — pendente.
+  9. `BRAIN-054`: aplicar o confinamento do índice também ao CLI — pendente.
+  10. `BRAIN-055`: completar cabeçalhos defensivos das respostas HTTP — pendente.
+- Próximos passos: concluir a defesa operacional e então retomar a revisão do Presidente e a observação de uso real.
 - Bloqueios: nenhum.
 - Interrupções: shell sem rede exigiu aprovação única para atualizar o manual oficial do Codex; Docker recebeu regra persistente limitada a `docker compose`.

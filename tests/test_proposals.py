@@ -41,3 +41,16 @@ def test_failed_atomic_publish_leaves_no_partial_file(
 
     assert list(tmp_path.rglob("*.md")) == []
     assert list(tmp_path.rglob("*.tmp")) == []
+
+
+def test_proposal_directory_cannot_be_a_symbolic_link(tmp_path: Path) -> None:
+    brain = tmp_path / "brain"
+    outside = tmp_path / "outside"
+    brain.mkdir()
+    outside.mkdir()
+    (brain / "proposals").symlink_to(outside, target_is_directory=True)
+
+    with pytest.raises(OSError, match="link simbólico"):
+        create_proposal(brain, "unnatha", "Não escapar", "Conteúdo protegido.")
+
+    assert list(outside.iterdir()) == []
