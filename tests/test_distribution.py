@@ -18,6 +18,13 @@ def test_runtime_does_not_log_request_paths_or_queries() -> None:
     assert '"--no-access-log"' in dockerfile
 
 
+def test_runtime_uses_unprivileged_user() -> None:
+    dockerfile = Path("Dockerfile").read_text(encoding="utf-8")
+
+    assert "useradd --system --gid brain" in dockerfile
+    assert re.search(r"^USER brain:brain$", dockerfile, flags=re.MULTILINE)
+
+
 def test_compose_confines_runtime_container() -> None:
     compose = Path("compose.yaml").read_text(encoding="utf-8")
 

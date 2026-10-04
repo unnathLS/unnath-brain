@@ -12,7 +12,12 @@ FROM base AS runtime
 
 RUN pip install --no-cache-dir --constraint constraints.txt .
 COPY brain ./brain
-RUN mkdir -p /app/data
+RUN groupadd --system brain \
+    && useradd --system --gid brain --home-dir /nonexistent --shell /usr/sbin/nologin brain \
+    && mkdir -p /app/data \
+    && chown -R brain:brain /app/data /app/brain/proposals
+
+USER brain:brain
 
 EXPOSE 8080
 
@@ -23,6 +28,9 @@ CMD ["uvicorn", "brain_gateway.main:app", "--host", "0.0.0.0", "--port", "8080",
 
 FROM runtime AS test
 
+USER root
 RUN pip install --no-cache-dir --constraint constraints.txt ".[dev]"
 COPY Dockerfile compose.yaml ./
 COPY tests ./tests
+RUN mkdir -p /app/.pytest_cache && chown brain:brain /app/.pytest_cache
+USER brain:brain
