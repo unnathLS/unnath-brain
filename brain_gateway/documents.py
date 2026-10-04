@@ -163,11 +163,16 @@ def parse_document(path: Path, root: Path) -> Document:
     except ValueError as exc:
         raise DocumentError(f"{path}: created deve usar YYYY-MM-DD") from exc
 
-    body = "\n".join(lines[closing + 1 :]).strip()
-    title = next(
-        (line[2:].strip() for line in lines[closing + 1 :] if line.startswith("# ")),
-        document_id,
-    )
+    body_lines = lines[closing + 1 :]
+    titles = [line[2:].strip() for line in body_lines if line.startswith("# ")]
+    if len(titles) != 1 or not titles[0]:
+        raise DocumentError(f"{path}: documento deve ter exatamente um título H1 não vazio")
+    if not any(
+        line.strip() and not line.lstrip().startswith("#") for line in body_lines
+    ):
+        raise DocumentError(f"{path}: conteúdo documental ausente")
+    body = "\n".join(body_lines).strip()
+    title = titles[0]
     return Document(
         id=document_id,
         type=document_type,

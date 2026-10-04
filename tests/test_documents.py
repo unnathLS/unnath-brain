@@ -50,6 +50,27 @@ def test_invalid_document(tmp_path: Path, invalid: str) -> None:
         parse_document(path, tmp_path)
 
 
+@pytest.mark.parametrize(
+    ("body", "message"),
+    [
+        ("Sem título explícito", "título H1"),
+        ("# \n\nConteúdo", "título H1"),
+        ("# Primeiro\n\n# Segundo\n\nConteúdo", "título H1"),
+        ("# Somente título", "conteúdo documental ausente"),
+        ("# Título\n\n## Somente subtítulo", "conteúdo documental ausente"),
+    ],
+)
+def test_document_requires_one_title_and_substantive_content(
+    tmp_path: Path, body: str, message: str
+) -> None:
+    path = tmp_path / "invalid.md"
+    frontmatter = VALID.split("---", 2)[1]
+    path.write_text(f"---{frontmatter}---\n\n{body}\n", encoding="utf-8")
+
+    with pytest.raises(DocumentError, match=message):
+        parse_document(path, tmp_path)
+
+
 def test_unknown_or_type_specific_frontmatter_fields_are_rejected(tmp_path: Path) -> None:
     for field in ("stats: active", "author: niyam"):
         path = tmp_path / "invalid.md"

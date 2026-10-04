@@ -37,4 +37,5 @@ Data: 2026-10-03.
 - Privacidade operacional: runtime confirmado com `--no-access-log`; consulta autenticada retornou HTTP 200 e seu caminho e termos permaneceram ausentes dos logs, enquanto eventos de inicialização continuaram disponíveis; 66 testes aprovados.
 - Escrita canônica mínima: mount `/app/brain` confirmado como somente leitura e sobreposição `/app/brain/proposals` como gravável; tentativa em `decisions/` falhou e criação temporária em `proposals/` funcionou; health permaneceu íntegro.
 - Caminhos canônicos diretos: documentos fora da raiz e qualquer arquivo alcançado por componente simbólico são rejeitados antes da leitura; 68 testes, compilação e `pip check` aprovados.
+- Conteúdo mínimo: documentos sem H1, com H1 vazio ou duplicado e arquivos compostos apenas por cabeçalhos são rejeitados; 73 testes aprovados.
 - Containers temporários do teste foram removidos; containers externos permaneceram intactos.
