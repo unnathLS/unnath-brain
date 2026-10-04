@@ -68,6 +68,20 @@ def _parse_scalar(raw: str) -> str | None:
 
 def parse_document(path: Path, root: Path) -> Document:
     try:
+        relative_path = path.absolute().relative_to(root.absolute())
+        path.resolve().relative_to(root.resolve())
+    except ValueError as exc:
+        raise DocumentError(f"{path}: documento fora da raiz do Brain") from exc
+
+    candidate = root.absolute()
+    if candidate.is_symlink():
+        raise DocumentError(f"{path}: links simbólicos não são permitidos no Brain")
+    for part in relative_path.parts:
+        candidate /= part
+        if candidate.is_symlink():
+            raise DocumentError(f"{path}: links simbólicos não são permitidos no Brain")
+
+    try:
         raw = path.read_text(encoding="utf-8")
     except UnicodeDecodeError as exc:
         raise DocumentError(f"{path}: arquivo não está em UTF-8") from exc
@@ -154,11 +168,6 @@ def parse_document(path: Path, root: Path) -> Document:
         (line[2:].strip() for line in lines[closing + 1 :] if line.startswith("# ")),
         document_id,
     )
-    try:
-        relative_path = path.resolve().relative_to(root.resolve())
-    except ValueError as exc:
-        raise DocumentError(f"{path}: documento fora da raiz do Brain") from exc
-
     return Document(
         id=document_id,
         type=document_type,

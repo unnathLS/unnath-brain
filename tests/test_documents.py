@@ -108,6 +108,27 @@ def test_load_documents_rejects_missing_or_non_directory_root(tmp_path: Path) ->
         load_documents(regular_file)
 
 
+def test_symbolic_document_is_rejected(tmp_path: Path) -> None:
+    decisions = tmp_path / "decisions"
+    decisions.mkdir()
+    target = decisions / "target.md"
+    target.write_text(VALID, encoding="utf-8")
+    (decisions / "alias.md").symlink_to(target)
+
+    with pytest.raises(DocumentError, match="links simbólicos não são permitidos"):
+        load_documents(tmp_path)
+
+
+def test_document_outside_root_is_rejected_before_parsing(tmp_path: Path) -> None:
+    brain = tmp_path / "brain"
+    brain.mkdir()
+    outside = tmp_path / "outside.md"
+    outside.write_text("not even frontmatter", encoding="utf-8")
+
+    with pytest.raises(DocumentError, match="documento fora da raiz"):
+        parse_document(outside, brain)
+
+
 def test_pending_is_exclusive_to_proposals(tmp_path: Path) -> None:
     path = tmp_path / "decision.md"
     path.write_text(VALID.replace("status: active", "status: pending"), encoding="utf-8")
