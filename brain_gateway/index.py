@@ -11,6 +11,7 @@ from .documents import load_documents
 SQLITE_TIMEOUT_SECONDS = 5.0
 SQLITE_BUSY_TIMEOUT_MS = 5_000
 MAX_QUERY_TERMS = 20
+QUERY_CONTROL_PATTERN = re.compile(r"[\x00-\x1f\x7f]")
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS documents (
@@ -209,6 +210,8 @@ def index_health(db_path: Path) -> int:
 
 
 def _fts_query(query: str) -> str:
+    if QUERY_CONTROL_PATTERN.search(query):
+        raise ValueError("consulta contém caractere de controle")
     terms = re.findall(r"\w+", query, flags=re.UNICODE)
     if not terms:
         raise ValueError("consulta vazia")

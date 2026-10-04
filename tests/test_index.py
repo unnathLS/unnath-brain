@@ -105,6 +105,13 @@ def test_search_rejects_excessive_query_terms(tmp_path: Path) -> None:
         search_documents(tmp_path / "missing.db", query)
 
 
+def test_search_rejects_control_characters_before_opening_database(
+    tmp_path: Path,
+) -> None:
+    with pytest.raises(ValueError, match="caractere de controle"):
+        search_documents(tmp_path / "missing.db", "corporativo\nsegredo")
+
+
 def test_git_ref_requires_tracked_unchanged_document(tmp_path: Path, monkeypatch) -> None:
     brain = tmp_path / "brain"
     brain.mkdir()
