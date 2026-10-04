@@ -77,6 +77,21 @@ def test_health_detects_and_recovers_from_fts_inconsistency(tmp_path: Path) -> N
         assert client.get("/health").json() == {"status": "ok", "documents": 1}
 
 
+def test_health_detects_fts_content_mismatch(tmp_path: Path) -> None:
+    client, _ = make_client(tmp_path)
+    database = tmp_path / "brain.db"
+    with client:
+        with sqlite3.connect(database) as connection:
+            connection.execute(
+                "UPDATE documents_fts SET title = ? WHERE id = ?",
+                ("Título adulterado", "DEC-TEST-001"),
+            )
+
+        response = client.get("/health")
+        assert response.status_code == 503
+        assert response.json()["detail"] == "índice indisponível"
+
+
 def test_read_endpoints_fail_when_index_is_missing(tmp_path: Path) -> None:
     client, _ = make_client(tmp_path)
     with client:

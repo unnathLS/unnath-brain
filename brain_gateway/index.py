@@ -188,7 +188,14 @@ def index_health(db_path: Path) -> int:
             WHERE d.id IS NULL
             LIMIT 1"""
         ).fetchone()
-        if document_count != fts_count or missing_fts or orphaned_fts:
+        content_mismatch = connection.execute(
+            """SELECT 1
+            FROM documents AS d
+            JOIN documents_fts AS f ON f.id = d.id
+            WHERE f.title != d.title OR f.content != d.content
+            LIMIT 1"""
+        ).fetchone()
+        if document_count != fts_count or missing_fts or orphaned_fts or content_mismatch:
             raise sqlite3.DatabaseError("índice textual inconsistente")
     return document_count
 
