@@ -197,6 +197,24 @@ def test_document_and_context(tmp_path: Path) -> None:
         assert context.json()["sources"][0]["path"] == "decisions/decision.md"
 
 
+def test_document_route_rejects_invalid_id_before_index_lookup(
+    tmp_path: Path, monkeypatch
+) -> None:
+    client, _ = make_client(tmp_path)
+
+    def unexpected_lookup(*_args, **_kwargs):
+        raise AssertionError("índice não deve ser consultado")
+
+    monkeypatch.setattr(api_module, "get_document", unexpected_lookup)
+    with client:
+        response = client.get(
+            "/api/v1/documents/dec-test!", headers=auth("token-a")
+        )
+
+    assert response.status_code == 422
+    assert response.json()["detail"] == "id de documento inválido"
+
+
 def test_proposal_is_pending_and_preserves_decision(tmp_path: Path) -> None:
     client, brain = make_client(tmp_path)
     original_path = brain / "decisions" / "decision.md"

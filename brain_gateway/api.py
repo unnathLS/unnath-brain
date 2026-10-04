@@ -98,6 +98,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.get("/api/v1/documents/{document_id}")
     def document(document_id: str, _: str = Depends(actor_from_token)) -> dict[str, object]:
+        if not ID_PATTERN.fullmatch(document_id):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="id de documento inválido",
+            )
         try:
             result = get_document(resolved.db_path, document_id)
         except (FileNotFoundError, sqlite3.Error) as exc:
