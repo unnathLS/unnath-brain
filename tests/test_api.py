@@ -69,6 +69,9 @@ def test_responses_disable_intermediate_storage(tmp_path: Path) -> None:
     for response in responses:
         assert response.headers["Cache-Control"] == "no-store"
         assert response.headers["Pragma"] == "no-cache"
+        assert response.headers["X-Content-Type-Options"] == "nosniff"
+        assert response.headers["X-Frame-Options"] == "DENY"
+        assert response.headers["Referrer-Policy"] == "no-referrer"
 
 
 def test_search_rejects_more_than_twenty_terms(tmp_path: Path) -> None:
