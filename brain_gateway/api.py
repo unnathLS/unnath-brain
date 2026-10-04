@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 import sqlite3
+from threading import Lock
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, status
@@ -43,10 +44,12 @@ class ProposalRequest(BaseModel):
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     resolved = settings or Settings.from_env()
+    mutation_lock = Lock()
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
-        rebuild_index(resolved.brain_root, resolved.db_path)
+        with mutation_lock:
+            rebuild_index(resolved.brain_root, resolved.db_path)
         yield
 
     app = FastAPI(title="Unnath Brain Gateway", version="1.0.0", lifespan=lifespan)
@@ -137,40 +140,41 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.post("/api/v1/proposals", status_code=status.HTTP_201_CREATED)
     def proposal(request: ProposalRequest, actor: str = Depends(actor_from_token)) -> dict[str, object]:
-        if request.target_id:
+        with mutation_lock:
+            if request.target_id:
+                try:
+                    target = get_document(resolved.db_path, request.target_id)
+                except (FileNotFoundError, sqlite3.Error) as exc:
+                    raise HTTPException(
+                        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                        detail="índice indisponível",
+                    ) from exc
+                if not target:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail="documento alvo não encontrado",
+                    )
+            proposal_id, path, timestamp = create_proposal(
+                resolved.brain_root,
+                actor,
+                request.title,
+                request.content,
+                request.target_id,
+            )
             try:
-                target = get_document(resolved.db_path, request.target_id)
-            except (FileNotFoundError, sqlite3.Error) as exc:
+                rebuild_index(resolved.brain_root, resolved.db_path)
+            except Exception as exc:
+                try:
+                    (resolved.brain_root / path).unlink(missing_ok=True)
+                except OSError as rollback_error:
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail="falha ao reverter proposta não indexada",
+                    ) from rollback_error
                 raise HTTPException(
                     status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                    detail="índice indisponível",
+                    detail="proposta não publicada",
                 ) from exc
-            if not target:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="documento alvo não encontrado",
-                )
-        proposal_id, path, timestamp = create_proposal(
-            resolved.brain_root,
-            actor,
-            request.title,
-            request.content,
-            request.target_id,
-        )
-        try:
-            rebuild_index(resolved.brain_root, resolved.db_path)
-        except Exception as exc:
-            try:
-                (resolved.brain_root / path).unlink(missing_ok=True)
-            except OSError as rollback_error:
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail="falha ao reverter proposta não indexada",
-                ) from rollback_error
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="proposta não publicada",
-            ) from exc
         return {
             "id": proposal_id,
             "status": "pending",

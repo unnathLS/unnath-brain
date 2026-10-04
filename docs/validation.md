@@ -40,4 +40,5 @@ Data: 2026-10-03.
 - Conteúdo mínimo: documentos sem H1, com H1 vazio ou duplicado e arquivos compostos apenas por cabeçalhos são rejeitados; 73 testes aprovados.
 - Coerência temporal: propostas rejeitam divergência entre `created` e a data civil presente em `timestamp`; 74 testes aprovados.
 - Rollback de publicação: falha simulada no rebuild retorna HTTP 503, remove o Markdown recém-criado e preserva o índice anterior saudável; 75 testes aprovados.
+- Concorrência de mutações: duas propostas simultâneas retornaram HTTP 201, a seção crítica permaneceu com concorrência máxima 1 e o health confirmou os 3 documentos esperados; 76 testes aprovados.
 - Containers temporários do teste foram removidos; containers externos permaneceram intactos.

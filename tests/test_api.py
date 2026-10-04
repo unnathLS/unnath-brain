@@ -1,5 +1,8 @@
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import sqlite3
+from threading import Lock
+import time
 
 from fastapi.testclient import TestClient
 
@@ -234,3 +237,43 @@ def test_proposal_is_rolled_back_when_index_rebuild_fails(
         assert response.json()["detail"] == "proposta não publicada"
         assert list((brain / "proposals").iterdir()) == []
         assert client.get("/health").json() == {"status": "ok", "documents": 1}
+
+
+def test_concurrent_proposal_mutations_are_serialized(
+    tmp_path: Path, monkeypatch
+) -> None:
+    client, brain = make_client(tmp_path)
+    original_create = api_module.create_proposal
+    state_lock = Lock()
+    active = 0
+    maximum_active = 0
+
+    def observed_create(*args, **kwargs):
+        nonlocal active, maximum_active
+        with state_lock:
+            active += 1
+            maximum_active = max(maximum_active, active)
+        try:
+            time.sleep(0.05)
+            return original_create(*args, **kwargs)
+        finally:
+            with state_lock:
+                active -= 1
+
+    with client:
+        monkeypatch.setattr(api_module, "create_proposal", observed_create)
+
+        def submit(number: int):
+            return client.post(
+                "/api/v1/proposals",
+                json={"title": f"Concorrente {number}", "content": "Conteúdo."},
+                headers=auth("token-a"),
+            )
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            responses = list(executor.map(submit, (1, 2)))
+
+        assert [response.status_code for response in responses] == [201, 201]
+        assert maximum_active == 1
+        assert len(list((brain / "proposals").glob("*.md"))) == 2
+        assert client.get("/health").json() == {"status": "ok", "documents": 3}
