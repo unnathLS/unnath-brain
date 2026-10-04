@@ -157,7 +157,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             request.content,
             request.target_id,
         )
-        rebuild_index(resolved.brain_root, resolved.db_path)
+        try:
+            rebuild_index(resolved.brain_root, resolved.db_path)
+        except Exception as exc:
+            try:
+                (resolved.brain_root / path).unlink(missing_ok=True)
+            except OSError as rollback_error:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="falha ao reverter proposta não indexada",
+                ) from rollback_error
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="proposta não publicada",
+            ) from exc
         return {
             "id": proposal_id,
             "status": "pending",

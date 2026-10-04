@@ -3,6 +3,7 @@ import sqlite3
 
 from fastapi.testclient import TestClient
 
+from brain_gateway import api as api_module
 from brain_gateway.api import create_app
 from brain_gateway.config import Settings
 from brain_gateway.index import rebuild_index
@@ -212,3 +213,24 @@ def test_proposal_rejects_unknown_target_before_writing(tmp_path: Path) -> None:
         assert response.status_code == 404
         assert response.json()["detail"] == "documento alvo não encontrado"
         assert list((brain / "proposals").iterdir()) == []
+
+
+def test_proposal_is_rolled_back_when_index_rebuild_fails(
+    tmp_path: Path, monkeypatch
+) -> None:
+    client, brain = make_client(tmp_path)
+    with client:
+        def fail_rebuild(*_args, **_kwargs) -> int:
+            raise OSError("falha simulada no índice")
+
+        monkeypatch.setattr(api_module, "rebuild_index", fail_rebuild)
+        response = client.post(
+            "/api/v1/proposals",
+            json={"title": "Não persistir", "content": "Rebuild falhou."},
+            headers=auth("token-a"),
+        )
+
+        assert response.status_code == 503
+        assert response.json()["detail"] == "proposta não publicada"
+        assert list((brain / "proposals").iterdir()) == []
+        assert client.get("/health").json() == {"status": "ok", "documents": 1}
