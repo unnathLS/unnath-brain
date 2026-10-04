@@ -359,7 +359,9 @@ def test_supersedes_graph_must_be_acyclic(tmp_path: Path) -> None:
 def test_supersedes_accepts_existing_acyclic_chain(tmp_path: Path) -> None:
     decisions = tmp_path / "decisions"
     decisions.mkdir()
-    (decisions / "first.md").write_text(VALID, encoding="utf-8")
+    (decisions / "first.md").write_text(
+        VALID.replace("status: active", "status: superseded"), encoding="utf-8"
+    )
     second = VALID.replace("DEC-TEST-001", "DEC-TEST-002").replace(
         "supersedes:", "supersedes: DEC-TEST-001"
     )
@@ -369,6 +371,30 @@ def test_supersedes_accepts_existing_acyclic_chain(tmp_path: Path) -> None:
         "DEC-TEST-001",
         "DEC-TEST-002",
     ]
+
+
+def test_superseded_document_requires_successor(tmp_path: Path) -> None:
+    decisions = tmp_path / "decisions"
+    decisions.mkdir()
+    (decisions / "orphan.md").write_text(
+        VALID.replace("status: active", "status: superseded"), encoding="utf-8"
+    )
+
+    with pytest.raises(DocumentError, match="superseded deve possuir sucessor"):
+        load_documents(tmp_path)
+
+
+def test_successor_requires_superseded_predecessor(tmp_path: Path) -> None:
+    decisions = tmp_path / "decisions"
+    decisions.mkdir()
+    (decisions / "predecessor.md").write_text(VALID, encoding="utf-8")
+    successor = VALID.replace("DEC-TEST-001", "DEC-TEST-002").replace(
+        "supersedes:", "supersedes: DEC-TEST-001"
+    )
+    (decisions / "successor.md").write_text(successor, encoding="utf-8")
+
+    with pytest.raises(DocumentError, match="com sucessor deve estar superseded"):
+        load_documents(tmp_path)
 
 
 def proposal_targeting(target_id: str) -> str:

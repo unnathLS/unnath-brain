@@ -283,4 +283,14 @@ def load_documents(root: Path) -> list[Document]:
                 raise DocumentError(f"ciclo em supersedes envolvendo {current.id}")
             visited.add(current.id)
             current = by_id[current.supersedes]
+    for document in documents:
+        has_successor = document.id in successors
+        if document.status == "superseded" and not has_successor:
+            raise DocumentError(
+                f"{document.path.as_posix()}: documento superseded deve possuir sucessor"
+            )
+        if has_successor and document.status != "superseded":
+            raise DocumentError(
+                f"{document.path.as_posix()}: documento com sucessor deve estar superseded"
+            )
     return documents
