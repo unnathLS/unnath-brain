@@ -53,6 +53,18 @@ def test_health_and_invalid_auth(tmp_path: Path) -> None:
         assert client.get("/api/v1/search", params={"q": '"***"'}, headers=auth("token-a")).status_code == 422
 
 
+def test_search_rejects_more_than_twenty_terms(tmp_path: Path) -> None:
+    client, _ = make_client(tmp_path)
+    query = " ".join(f"termo{number}" for number in range(21))
+    with client:
+        response = client.get(
+            "/api/v1/search", params={"q": query}, headers=auth("token-a")
+        )
+
+    assert response.status_code == 422
+    assert response.json()["detail"] == "consulta excede o limite de 20 termos"
+
+
 def test_health_fails_when_index_is_missing(tmp_path: Path) -> None:
     client, _ = make_client(tmp_path)
     with client:

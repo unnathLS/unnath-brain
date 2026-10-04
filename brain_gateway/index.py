@@ -10,6 +10,7 @@ from .documents import load_documents
 
 SQLITE_TIMEOUT_SECONDS = 5.0
 SQLITE_BUSY_TIMEOUT_MS = 5_000
+MAX_QUERY_TERMS = 20
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS documents (
@@ -211,6 +212,8 @@ def _fts_query(query: str) -> str:
     terms = re.findall(r"\w+", query, flags=re.UNICODE)
     if not terms:
         raise ValueError("consulta vazia")
+    if len(terms) > MAX_QUERY_TERMS:
+        raise ValueError(f"consulta excede o limite de {MAX_QUERY_TERMS} termos")
     return " AND ".join(f'"{term}"*' for term in terms)
 
 

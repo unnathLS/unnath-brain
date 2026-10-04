@@ -98,6 +98,13 @@ def test_search_sanitizes_fts_syntax(tmp_path: Path) -> None:
         search_documents(database, '"***"')
 
 
+def test_search_rejects_excessive_query_terms(tmp_path: Path) -> None:
+    query = " ".join(f"termo{number}" for number in range(index.MAX_QUERY_TERMS + 1))
+
+    with pytest.raises(ValueError, match="limite de 20 termos"):
+        search_documents(tmp_path / "missing.db", query)
+
+
 def test_git_ref_requires_tracked_unchanged_document(tmp_path: Path, monkeypatch) -> None:
     brain = tmp_path / "brain"
     brain.mkdir()
