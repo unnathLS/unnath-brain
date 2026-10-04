@@ -151,6 +151,16 @@ def test_load_documents_rejects_missing_or_non_directory_root(tmp_path: Path) ->
         load_documents(regular_file)
 
 
+def test_load_documents_rejects_symbolic_root_even_when_empty(tmp_path: Path) -> None:
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    brain = tmp_path / "brain"
+    brain.symlink_to(outside, target_is_directory=True)
+
+    with pytest.raises(DocumentError, match="links simbólicos não são permitidos"):
+        load_documents(brain)
+
+
 def test_symbolic_document_is_rejected(tmp_path: Path) -> None:
     decisions = tmp_path / "decisions"
     decisions.mkdir()

@@ -208,6 +208,8 @@ def parse_document(path: Path, root: Path) -> Document:
 
 
 def load_documents(root: Path) -> list[Document]:
+    if root.is_symlink():
+        raise DocumentError(f"{root}: links simbólicos não são permitidos no Brain")
     if not root.is_dir():
         raise DocumentError(f"{root}: raiz do Brain ausente ou inválida")
     documents: list[Document] = []
