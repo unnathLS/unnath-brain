@@ -54,6 +54,21 @@ def test_root_redirects_to_interactive_documentation(tmp_path: Path) -> None:
         assert client.get("/docs").status_code == 200
 
 
+def test_openapi_declares_bearer_authentication(tmp_path: Path) -> None:
+    client, _ = make_client(tmp_path)
+    with client:
+        schema = client.get("/openapi.json").json()
+
+    assert schema["components"]["securitySchemes"]["HTTPBearer"] == {
+        "type": "http",
+        "scheme": "bearer",
+    }
+    assert schema["paths"]["/api/v1/search"]["get"]["security"] == [
+        {"HTTPBearer": []}
+    ]
+    assert "security" not in schema["paths"]["/health"]["get"]
+
+
 def test_health_and_invalid_auth(tmp_path: Path) -> None:
     client, _ = make_client(tmp_path)
     with client:

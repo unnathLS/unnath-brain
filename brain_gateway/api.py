@@ -6,7 +6,8 @@ import sqlite3
 from threading import Lock
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, status
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, Security, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from starlette.responses import RedirectResponse
 
@@ -18,6 +19,7 @@ from .proposals import create_proposal
 
 
 INLINE_CONTROL_PATTERN = re.compile(r"[\x00-\x1f\x7f]")
+BEARER_SCHEME = HTTPBearer(auto_error=False)
 
 
 class APIRequest(BaseModel):
@@ -83,7 +85,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         response.headers["Referrer-Policy"] = "no-referrer"
         return response
 
-    def actor_from_token(authorization: Annotated[str | None, Header()] = None) -> str:
+    def actor_from_token(
+        credentials: Annotated[
+            HTTPAuthorizationCredentials | None, Security(BEARER_SCHEME)
+        ] = None,
+    ) -> str:
+        authorization = (
+            f"{credentials.scheme} {credentials.credentials}" if credentials else None
+        )
         return authenticate(authorization, resolved.api_tokens)
 
     @app.get("/", include_in_schema=False)
