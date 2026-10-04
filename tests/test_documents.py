@@ -318,6 +318,20 @@ def test_successor_cannot_predate_predecessor(tmp_path: Path) -> None:
         load_documents(tmp_path)
 
 
+def test_document_cannot_have_multiple_successors(tmp_path: Path) -> None:
+    decisions = tmp_path / "decisions"
+    decisions.mkdir()
+    (decisions / "predecessor.md").write_text(VALID, encoding="utf-8")
+    for number in (2, 3):
+        successor = VALID.replace(
+            "id: DEC-TEST-001", f"id: DEC-TEST-00{number}"
+        ).replace("supersedes:", "supersedes: DEC-TEST-001")
+        (decisions / f"successor-{number}.md").write_text(successor, encoding="utf-8")
+
+    with pytest.raises(DocumentError, match="possui mais de um sucessor"):
+        load_documents(tmp_path)
+
+
 def test_supersedes_graph_must_be_acyclic(tmp_path: Path) -> None:
     decisions = tmp_path / "decisions"
     decisions.mkdir()

@@ -231,6 +231,7 @@ def load_documents(root: Path) -> list[Document]:
         documents.append(document)
 
     by_id = {document.id: document for document in documents}
+    successors: dict[str, str] = {}
     for document in documents:
         if document.supersedes == document.id:
             raise DocumentError(f"{document.path.as_posix()}: documento não pode superseder a si mesmo")
@@ -251,6 +252,12 @@ def load_documents(root: Path) -> list[Document]:
                     f"{document.path.as_posix()}: created não pode ser anterior "
                     "ao documento superseded"
                 )
+            if previous_successor := successors.get(document.supersedes):
+                raise DocumentError(
+                    f"{document.path.as_posix()}: {document.supersedes} possui mais de "
+                    f"um sucessor: {previous_successor} e {document.id}"
+                )
+            successors[document.supersedes] = document.id
         if document.target_id == document.id:
             raise DocumentError(f"{document.path.as_posix()}: proposta não pode apontar para si mesma")
         if document.target_id and document.target_id not in by_id:
