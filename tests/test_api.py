@@ -44,6 +44,16 @@ def auth(token: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
 
 
+def test_root_redirects_to_interactive_documentation(tmp_path: Path) -> None:
+    client, _ = make_client(tmp_path)
+    with client:
+        response = client.get("/", follow_redirects=False)
+
+        assert response.status_code == 307
+        assert response.headers["location"] == "/docs"
+        assert client.get("/docs").status_code == 200
+
+
 def test_health_and_invalid_auth(tmp_path: Path) -> None:
     client, _ = make_client(tmp_path)
     with client:

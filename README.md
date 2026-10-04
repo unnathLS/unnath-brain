@@ -8,7 +8,8 @@ O índice SQLite é derivado e pode ser reconstruído integralmente a partir de 
 
 1. Copie `.env.example` para `.env` e gere tokens aleatórios diferentes, cada um com pelo menos 32 caracteres.
 2. Execute `docker compose up --build -d`.
-3. Verifique `http://127.0.0.1:8080/health`.
+3. Abra `http://127.0.0.1:8080/` para acessar a documentação interativa.
+4. Verifique `http://127.0.0.1:8080/health` para confirmar a integridade do serviço.
 
 Exemplo de consulta:
 

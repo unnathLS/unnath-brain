@@ -8,6 +8,7 @@ from typing import Annotated
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, status
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+from starlette.responses import RedirectResponse
 
 from .auth import authenticate
 from .config import Settings
@@ -84,6 +85,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     def actor_from_token(authorization: Annotated[str | None, Header()] = None) -> str:
         return authenticate(authorization, resolved.api_tokens)
+
+    @app.get("/", include_in_schema=False)
+    def root() -> RedirectResponse:
+        return RedirectResponse(url="/docs", status_code=status.HTTP_307_TEMPORARY_REDIRECT)
 
     @app.get("/health")
     def health() -> dict[str, object]:
