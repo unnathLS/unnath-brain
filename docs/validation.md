@@ -35,4 +35,5 @@ Data: 2026-10-03.
 - Separação da projeção: configurações diretas ou por ambiente falham quando `BRAIN_DB_PATH` coincide com ou fica abaixo de `BRAIN_ROOT`; índice externo aceito; 64 testes aprovados.
 - Recursos limitados: configuração e `HostConfig` efetivo confirmaram 1 CPU, 512 MB de memória e 128 processos; container permaneceu saudável; 65 testes aprovados.
 - Privacidade operacional: runtime confirmado com `--no-access-log`; consulta autenticada retornou HTTP 200 e seu caminho e termos permaneceram ausentes dos logs, enquanto eventos de inicialização continuaram disponíveis; 66 testes aprovados.
+- Escrita canônica mínima: mount `/app/brain` confirmado como somente leitura e sobreposição `/app/brain/proposals` como gravável; tentativa em `decisions/` falhou e criação temporária em `proposals/` funcionou; health permaneceu íntegro.
 - Containers temporários do teste foram removidos; containers externos permaneceram intactos.

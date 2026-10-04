@@ -19,7 +19,8 @@ services:
       BRAIN_DB_PATH: /app/data/brain.db
       BRAIN_API_TOKENS: ${BRAIN_API_TOKENS:?configure BRAIN_API_TOKENS in .env}
     volumes:
-      - ./brain:/app/brain
+      - ./brain:/app/brain:ro
+      - ./brain/proposals:/app/brain/proposals
       - brain-data:/app/data
     tmpfs:
       - /tmp:rw,noexec,nosuid,size=64m

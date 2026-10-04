@@ -1,6 +1,6 @@
 # Progresso
 
-- Último marco: BRAIN-029 concluído; consultas não são replicadas nos access logs.
+- Último marco: BRAIN-030 concluído; o runtime só escreve na área canônica de propostas.
 - Etapa atual: piloto local iniciado em 2026-10-03; MVP pronto para revisão do Presidente e observação de uso real.
 - Testes: 66 aprovados; E2E, rebuild, Compose, restart, governança, FTS, configuração, publicação atômica, dependências, confinamento, recursos, privacidade e rotação de logs aprovados; `pip check` sem conflitos.
 - Commits publicados: `44f7b78` (MVP), `1959775` (propostas válidas), `96527a8` (health íntegro), `0766ee0` (propostas atômicas), `1855345` (raiz válida), `075aee0` (clone limpo), `ada6a1c` (runtime mínimo), `2574e1b` (dependências fixadas), `f93ea4a` (imagem base), `f283ab2` (atores), `d9c4cda` (diretórios), `776a9d6` (sucessão), `b7860c6` (contexto ativo) e `4188b43` (confinamento) em `origin/development`.
@@ -33,6 +33,13 @@
   4. `BRAIN-027`: impedir que o índice seja configurado dentro da fonte canônica — concluído; 64 testes aprovados.
   5. `BRAIN-028`: limitar CPU, memória e processos do container — concluído; 1 CPU, 512 MB e 128 processos verificados no runtime.
   6. `BRAIN-029`: impedir que consultas apareçam nos access logs — concluído; consulta autenticada ausente dos logs e 66 testes aprovados.
+- Fronteira canônica:
+  1. `BRAIN-030`: tornar o acervo somente leitura no runtime, exceto `proposals/` — concluído; mounts e escrita seletiva verificados.
+  2. `BRAIN-031`: rejeitar documentos canônicos acessados por links simbólicos — em execução.
+  3. `BRAIN-032`: exigir título explícito e conteúdo documental mínimo — pendente.
+  4. `BRAIN-033`: alinhar `created` e `timestamp` nas propostas — pendente.
+  5. `BRAIN-034`: reverter a proposta quando a atualização do índice falhar — pendente.
+  6. `BRAIN-035`: serializar criações de propostas e rebuilds no processo — pendente.
 - Próximos passos: revisão do Presidente e observação de uso real; os doze checkpoints adicionais do MVP estão concluídos.
 - Bloqueios: nenhum.
 - Interrupções: shell sem rede exigiu aprovação única para atualizar o manual oficial do Codex; Docker recebeu regra persistente limitada a `docker compose`.

@@ -25,6 +25,8 @@ def test_compose_confines_runtime_container() -> None:
     assert re.search(r"^    cap_drop:\n      - ALL$", compose, flags=re.MULTILINE)
     assert "      - no-new-privileges:true" in compose
     assert "      - /tmp:rw,noexec,nosuid,size=64m" in compose
+    assert "      - ./brain:/app/brain:ro" in compose
+    assert "      - ./brain/proposals:/app/brain/proposals" in compose
 
 
 def test_compose_bounds_runtime_logs() -> None:
