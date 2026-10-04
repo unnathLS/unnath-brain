@@ -41,4 +41,5 @@ Data: 2026-10-03.
 - Coerência temporal: propostas rejeitam divergência entre `created` e a data civil presente em `timestamp`; 74 testes aprovados.
 - Rollback de publicação: falha simulada no rebuild retorna HTTP 503, remove o Markdown recém-criado e preserva o índice anterior saudável; 75 testes aprovados.
 - Concorrência de mutações: duas propostas simultâneas retornaram HTTP 201, a seção crítica permaneceu com concorrência máxima 1 e o health confirmou os 3 documentos esperados; 76 testes aprovados.
+- Limite documental: arquivos acima de 1.000.000 bytes são rejeitados antes da leitura em memória; 77 testes aprovados.
 - Containers temporários do teste foram removidos; containers externos permaneceram intactos.

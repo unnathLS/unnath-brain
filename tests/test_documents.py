@@ -2,7 +2,12 @@ from pathlib import Path
 
 import pytest
 
-from brain_gateway.documents import DocumentError, load_documents, parse_document
+from brain_gateway.documents import (
+    MAX_DOCUMENT_BYTES,
+    DocumentError,
+    load_documents,
+    parse_document,
+)
 
 
 VALID = """---
@@ -165,6 +170,14 @@ def test_document_outside_root_is_rejected_before_parsing(tmp_path: Path) -> Non
 
     with pytest.raises(DocumentError, match="documento fora da raiz"):
         parse_document(outside, brain)
+
+
+def test_oversized_document_is_rejected_before_reading(tmp_path: Path) -> None:
+    path = tmp_path / "oversized.md"
+    path.write_bytes(b"x" * (MAX_DOCUMENT_BYTES + 1))
+
+    with pytest.raises(DocumentError, match="excede o limite"):
+        parse_document(path, tmp_path)
 
 
 def test_pending_is_exclusive_to_proposals(tmp_path: Path) -> None:

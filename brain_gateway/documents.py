@@ -34,6 +34,7 @@ TYPE_DIRECTORIES = {
     "proposal": "proposals",
 }
 WORKFLOW_DIRECTORIES = {"archive", "inbox"}
+MAX_DOCUMENT_BYTES = 1_000_000
 
 
 class DocumentError(ValueError):
@@ -80,6 +81,11 @@ def parse_document(path: Path, root: Path) -> Document:
         candidate /= part
         if candidate.is_symlink():
             raise DocumentError(f"{path}: links simbólicos não são permitidos no Brain")
+
+    if path.stat().st_size > MAX_DOCUMENT_BYTES:
+        raise DocumentError(
+            f"{path}: documento excede o limite de {MAX_DOCUMENT_BYTES} bytes"
+        )
 
     try:
         raw = path.read_text(encoding="utf-8")
