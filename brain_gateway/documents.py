@@ -159,9 +159,11 @@ def parse_document(path: Path, root: Path) -> Document:
     else:
         target_id = None
     try:
-        date.fromisoformat(created)
+        created_date = date.fromisoformat(created)
     except ValueError as exc:
         raise DocumentError(f"{path}: created deve usar YYYY-MM-DD") from exc
+    if document_type == "proposal" and timestamp.date() != created_date:
+        raise DocumentError(f"{path}: created deve coincidir com a data do timestamp")
 
     body_lines = lines[closing + 1 :]
     titles = [line[2:].strip() for line in body_lines if line.startswith("# ")]

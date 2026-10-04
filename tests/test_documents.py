@@ -109,6 +109,23 @@ def test_proposal_author_must_be_a_safe_actor_identity(tmp_path: Path) -> None:
         parse_document(path, tmp_path)
 
 
+def test_proposal_created_date_must_match_timestamp(tmp_path: Path) -> None:
+    proposal = (
+        VALID.replace("id: DEC-TEST-001", "id: PROP-TEST-001")
+        .replace("type: decision", "type: proposal")
+        .replace("status: active", "status: pending")
+        .replace(
+            "supersedes:\n",
+            "supersedes:\nauthor: niyam\ntimestamp: 2026-10-04T00:00:00+00:00\n",
+        )
+    )
+    path = tmp_path / "proposal.md"
+    path.write_text(proposal, encoding="utf-8")
+
+    with pytest.raises(DocumentError, match="coincidir com a data do timestamp"):
+        parse_document(path, tmp_path)
+
+
 def test_duplicate_id(tmp_path: Path) -> None:
     decisions = tmp_path / "decisions"
     decisions.mkdir()
