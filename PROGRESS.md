@@ -1,8 +1,8 @@
 # Progresso
 
-- Último marco: BRAIN-061 concluído; a documentação interativa representa a autenticação Bearer.
+- Último marco: BRAIN-062 concluído; o parser Bearer rejeita ambiguidades e percorre todas as credenciais.
 - Etapa atual: piloto local iniciado em 2026-10-03; MVP pronto para revisão do Presidente e observação de uso real.
-- Testes: 109 aprovados; E2E, concorrência, rebuild, Compose, restart, governança, FTS, configuração, rollback de propostas, publicação atômica, dependências, confinamento, recursos, privacidade e rotação de logs aprovados; compilação limpa e `pip check` sem conflitos.
+- Testes: 111 aprovados; E2E, concorrência, rebuild, Compose, restart, governança, FTS, configuração, rollback de propostas, publicação atômica, dependências, confinamento, recursos, privacidade e rotação de logs aprovados; compilação limpa e `pip check` sem conflitos.
 - Commits publicados: `44f7b78` (MVP), `1959775` (propostas válidas), `96527a8` (health íntegro), `0766ee0` (propostas atômicas), `1855345` (raiz válida), `075aee0` (clone limpo), `ada6a1c` (runtime mínimo), `2574e1b` (dependências fixadas), `f93ea4a` (imagem base), `f283ab2` (atores), `d9c4cda` (diretórios), `776a9d6` (sucessão), `b7860c6` (contexto ativo) e `4188b43` (confinamento) em `origin/development`.
 - Decisões: Markdown + Git como fonte; SQLite/FTS5 como índice derivado; API reservada para a porta 8080.
 - Restrições: Honcho, Hermes e Unnath HQ não serão modificados.
@@ -70,6 +70,7 @@
   3. `BRAIN-059`: limitar conexões concorrentes do gateway — concluído; teto de 64 conexões validado em 107 testes.
   4. `BRAIN-060`: ocultar a assinatura do servidor HTTP — concluído; ausência do cabeçalho `Server` verificada em 108 testes e no runtime.
   5. `BRAIN-061`: declarar autenticação Bearer no OpenAPI — concluído; Swagger e rotas públicas/protegidas validados em 109 testes.
+  6. `BRAIN-062`: tornar o parser Bearer estrito e uniforme — concluído; variação de caixa, formatos ambíguos e varredura integral cobertos em 111 testes.
 - Próximos passos: revisão do Presidente e observação de uso real; a defesa operacional do MVP está concluída.
 - Bloqueios: nenhum.
 - Interrupções: shell sem rede exigiu aprovação única para atualizar o manual oficial do Codex; Docker recebeu regra persistente limitada a `docker compose`.
