@@ -382,6 +382,21 @@ def test_proposal_cannot_target_itself(tmp_path: Path) -> None:
         load_documents(tmp_path)
 
 
+def test_proposal_target_must_be_active_and_non_proposal(tmp_path: Path) -> None:
+    decisions = tmp_path / "decisions"
+    proposals = tmp_path / "proposals"
+    decisions.mkdir()
+    proposals.mkdir()
+    draft = VALID.replace("status: active", "status: draft")
+    (decisions / "decision.md").write_text(draft, encoding="utf-8")
+    (proposals / "proposal.md").write_text(
+        proposal_targeting("DEC-TEST-001"), encoding="utf-8"
+    )
+
+    with pytest.raises(DocumentError, match="ativo não propositivo"):
+        load_documents(tmp_path)
+
+
 def test_proposal_accepts_existing_target(tmp_path: Path) -> None:
     decisions = tmp_path / "decisions"
     proposals = tmp_path / "proposals"

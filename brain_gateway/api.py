@@ -154,6 +154,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                         status_code=status.HTTP_404_NOT_FOUND,
                         detail="documento alvo não encontrado",
                     )
+                if target["status"] != "active" or target["type"] == "proposal":
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail="documento alvo deve estar ativo e não ser proposta",
+                    )
             proposal_id, path, timestamp = create_proposal(
                 resolved.brain_root,
                 actor,

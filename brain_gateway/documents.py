@@ -250,6 +250,13 @@ def load_documents(root: Path) -> list[Document]:
                 f"{document.path.as_posix()}: target_id referencia ID inexistente: "
                 f"{document.target_id}"
             )
+        if document.target_id:
+            target = by_id[document.target_id]
+            if target.status != "active" or target.type == "proposal":
+                raise DocumentError(
+                    f"{document.path.as_posix()}: target_id deve referenciar "
+                    "documento ativo não propositivo"
+                )
 
     for document in documents:
         visited: set[str] = set()

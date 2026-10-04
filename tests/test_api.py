@@ -218,6 +218,30 @@ def test_proposal_rejects_unknown_target_before_writing(tmp_path: Path) -> None:
         assert list((brain / "proposals").iterdir()) == []
 
 
+def test_proposal_rejects_inactive_target_before_writing(tmp_path: Path) -> None:
+    client, brain = make_client(tmp_path)
+    decision = brain / "decisions" / "decision.md"
+    decision.write_text(
+        decision.read_text(encoding="utf-8").replace("status: active", "status: draft"),
+        encoding="utf-8",
+    )
+    with client:
+        rebuild_index(brain, tmp_path / "brain.db")
+        response = client.post(
+            "/api/v1/proposals",
+            json={
+                "title": "Não revisar rascunho",
+                "content": "O alvo ainda não está vigente.",
+                "target_id": "DEC-TEST-001",
+            },
+            headers=auth("token-a"),
+        )
+
+        assert response.status_code == 409
+        assert response.json()["detail"] == "documento alvo deve estar ativo e não ser proposta"
+        assert list((brain / "proposals").iterdir()) == []
+
+
 def test_proposal_is_rolled_back_when_index_rebuild_fails(
     tmp_path: Path, monkeypatch
 ) -> None:

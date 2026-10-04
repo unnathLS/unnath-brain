@@ -1,8 +1,8 @@
 # Progresso
 
-- Último marco: BRAIN-039 concluído; sucessões documentais não aceitam datas retroativas.
+- Último marco: BRAIN-040 concluído; propostas só podem apontar para documentos ativos não propositivos.
 - Etapa atual: piloto local iniciado em 2026-10-03; MVP pronto para revisão do Presidente e observação de uso real.
-- Testes: 84 aprovados; E2E, concorrência, rebuild, Compose, restart, governança, FTS, configuração, rollback de propostas, publicação atômica, dependências, confinamento, recursos, privacidade e rotação de logs aprovados; `pip check` sem conflitos.
+- Testes: 86 aprovados; E2E, concorrência, rebuild, Compose, restart, governança, FTS, configuração, rollback de propostas, publicação atômica, dependências, confinamento, recursos, privacidade e rotação de logs aprovados; `pip check` sem conflitos.
 - Commits publicados: `44f7b78` (MVP), `1959775` (propostas válidas), `96527a8` (health íntegro), `0766ee0` (propostas atômicas), `1855345` (raiz válida), `075aee0` (clone limpo), `ada6a1c` (runtime mínimo), `2574e1b` (dependências fixadas), `f93ea4a` (imagem base), `f283ab2` (atores), `d9c4cda` (diretórios), `776a9d6` (sucessão), `b7860c6` (contexto ativo) e `4188b43` (confinamento) em `origin/development`.
 - Decisões: Markdown + Git como fonte; SQLite/FTS5 como índice derivado; API reservada para a porta 8080.
 - Restrições: Honcho, Hermes e Unnath HQ não serão modificados.
@@ -45,8 +45,8 @@
   2. `BRAIN-037`: rejeitar caracteres de controle invisíveis nos Markdown — concluído; 82 testes aprovados.
   3. `BRAIN-038`: exigir que `supersedes` relacione documentos do mesmo tipo — concluído; 83 testes aprovados.
   4. `BRAIN-039`: impedir sucessão documental com data retroativa — concluído; 84 testes aprovados.
-  5. `BRAIN-040`: restringir `target_id` a documentos ativos não propositivos — em execução.
-  6. `BRAIN-041`: indexar metadados de governança das propostas — pendente.
+  5. `BRAIN-040`: restringir `target_id` a documentos ativos não propositivos — concluído; 86 testes aprovados.
+  6. `BRAIN-041`: indexar metadados de governança das propostas — em execução.
   7. `BRAIN-042`: verificar igualdade de título e conteúdo entre índice e FTS — pendente.
   8. `BRAIN-043`: configurar espera limitada para contenção do SQLite — pendente.
   9. `BRAIN-044`: limitar a complexidade das consultas por quantidade de termos — pendente.
