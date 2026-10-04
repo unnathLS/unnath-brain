@@ -35,6 +35,7 @@ TYPE_DIRECTORIES = {
 }
 WORKFLOW_DIRECTORIES = {"archive", "inbox"}
 MAX_DOCUMENT_BYTES = 1_000_000
+CONTROL_CHARACTER_PATTERN = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 
 
 class DocumentError(ValueError):
@@ -91,6 +92,8 @@ def parse_document(path: Path, root: Path) -> Document:
         raw = path.read_text(encoding="utf-8")
     except UnicodeDecodeError as exc:
         raise DocumentError(f"{path}: arquivo não está em UTF-8") from exc
+    if CONTROL_CHARACTER_PATTERN.search(raw):
+        raise DocumentError(f"{path}: caractere de controle não permitido")
 
     lines = raw.splitlines()
     if not lines or lines[0].strip() != "---":

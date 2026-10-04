@@ -180,6 +180,15 @@ def test_oversized_document_is_rejected_before_reading(tmp_path: Path) -> None:
         parse_document(path, tmp_path)
 
 
+@pytest.mark.parametrize("character", ["\x00", "\x07", "\x0b", "\x1f", "\x7f"])
+def test_control_characters_are_rejected(tmp_path: Path, character: str) -> None:
+    path = tmp_path / "invalid.md"
+    path.write_text(VALID + character, encoding="utf-8")
+
+    with pytest.raises(DocumentError, match="caractere de controle"):
+        parse_document(path, tmp_path)
+
+
 def test_pending_is_exclusive_to_proposals(tmp_path: Path) -> None:
     path = tmp_path / "decision.md"
     path.write_text(VALID.replace("status: active", "status: pending"), encoding="utf-8")
