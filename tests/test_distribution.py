@@ -63,3 +63,9 @@ def test_runtime_bounds_concurrent_connections() -> None:
     dockerfile = Path("Dockerfile").read_text(encoding="utf-8")
 
     assert '"--limit-concurrency", "64"' in dockerfile
+
+
+def test_runtime_hides_server_implementation_header() -> None:
+    dockerfile = Path("Dockerfile").read_text(encoding="utf-8")
+
+    assert '"--no-server-header"' in dockerfile
