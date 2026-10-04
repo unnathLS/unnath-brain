@@ -12,6 +12,12 @@ def test_python_base_image_is_pinned_by_digest() -> None:
     )
 
 
+def test_runtime_does_not_log_request_paths_or_queries() -> None:
+    dockerfile = Path("Dockerfile").read_text(encoding="utf-8")
+
+    assert '"--no-access-log"' in dockerfile
+
+
 def test_compose_confines_runtime_container() -> None:
     compose = Path("compose.yaml").read_text(encoding="utf-8")
 
